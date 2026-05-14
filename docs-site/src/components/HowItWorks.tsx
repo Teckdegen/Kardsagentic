@@ -1,44 +1,5 @@
 import { motion } from 'motion/react'
 
-const STAGES = [
-  {
-    num: '01',
-    title: 'You describe what you want',
-    desc: 'Write a strategy in plain English. "Long ETH if RSI drops below 30, risk 2%." or "Park my USDC at the highest yield."',
-    color: 'text-blue-400'
-  },
-  {
-    num: '02',
-    title: 'AI compiles the plan',
-    desc: 'Your chosen LLM (Claude, GPT, DeepSeek, or local Ollama) turns your words into a structured execution blueprint with conditions, actions, and risk limits.',
-    color: 'text-purple-400'
-  },
-  {
-    num: '03',
-    title: 'Risk engine validates',
-    desc: '10 hard safety checks run before anything touches the market. Not enough gas? Position too big? Confidence too low? Action is blocked — not warned, blocked.',
-    color: 'text-amber-400'
-  },
-  {
-    num: '04',
-    title: 'Agent executes on-chain',
-    desc: 'Approved actions go live: opening perp positions, supplying to Aave, swapping tokens, minting L-USDC on Kite via Lucid, bridging cross-chain.',
-    color: 'text-emerald-400'
-  },
-  {
-    num: '05',
-    title: 'Kite AI records the proof',
-    desc: 'Every action generates a cryptographically signed attestation on Kite AI — what happened, why, the confidence score, risk rating, and tx hash. Permanent. Verifiable.',
-    color: 'text-cyan-400'
-  },
-  {
-    num: '06',
-    title: 'Agent learns and repeats',
-    desc: 'Every 20 cycles, Kard reviews what worked and folds those lessons into its reasoning. Then it waits for the next cycle — 24/7, without you.',
-    color: 'text-rose-400'
-  }
-]
-
 export default function HowItWorks () {
   return (
     <section id="how-it-works" className="max-w-[1200px] mx-auto mt-32 px-6 md:px-12 scroll-mt-32">
@@ -47,53 +8,70 @@ export default function HowItWorks () {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6 }}
-        className="text-center max-w-3xl mx-auto mb-16"
+        className="text-center max-w-3xl mx-auto mb-12"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-semibold text-slate-400 mb-6">
-          Every cycle
-        </div>
-        <h2 className="text-[36px] md:text-[48px] font-semibold tracking-tight leading-[1.05] text-white">
-          Six steps, every time
+        <h2 className="text-[36px] md:text-[48px] font-bold tracking-tight leading-[1.05] text-white">
+          How every cycle runs
         </h2>
         <p className="mt-5 text-[15px] leading-relaxed text-slate-400 max-w-xl mx-auto">
           Intelligence proposes. Infrastructure executes. Kite verifies.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {STAGES.map((s, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.4, delay: i * 0.06 }}
-            className="relative rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 hover:border-white/[0.12] transition-all"
-          >
-            <div className={`font-mono text-[11px] font-bold ${s.color} mb-3`}>{s.num}</div>
-            <h3 className="text-[16px] font-semibold text-white mb-2">{s.title}</h3>
-            <p className="text-[13px] leading-relaxed text-slate-500">{s.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Pipeline bar */}
+      {/* Terminal-style pipeline visualization */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 rounded-2xl bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 border border-white/[0.06] p-6"
+        transition={{ duration: 0.6 }}
+        className="terminal max-w-3xl mx-auto"
       >
-        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-          {['Intent', 'LLM', 'Risk', 'Simulate', 'Execute', 'Attest'].map((label, i) => (
-            <div key={label} className="flex items-center gap-3">
-              <div className="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-[13px] font-medium text-slate-300">
-                {label}
-              </div>
-              {i < 5 && <span className="text-slate-600 hidden md:block">→</span>}
-            </div>
-          ))}
+        <div className="terminal-header">
+          <div className="terminal-dot bg-[#ff5f57]" />
+          <div className="terminal-dot bg-[#febc2e]" />
+          <div className="terminal-dot bg-[#28c840]" />
+          <span className="ml-3 text-[11px] text-slate-500 font-mono">kard run --strategy KITE_YIELD --interval 60s</span>
+        </div>
+        <div className="terminal-body text-left space-y-1">
+          <div className="text-slate-500">{'═'.repeat(60)}</div>
+          <div className="text-white font-medium">Cycle #47 START</div>
+          <div className="text-slate-500">{'─'.repeat(60)}</div>
+          <div className="h-2" />
+
+          <div className="text-blue-400">┌ <span className="text-slate-300">01 OBSERVE</span></div>
+          <div className="text-slate-500">│  Reading on-chain state across 5 chains...</div>
+          <div className="text-slate-500">│  Balances: USDC 1,200 | ETH 0.045 | Supplied: USDC 800 (Aave)</div>
+          <div className="text-blue-400">└ <span className="text-emerald-400">done</span> <span className="text-slate-600">420ms</span></div>
+          <div className="h-1" />
+
+          <div className="text-purple-400">┌ <span className="text-slate-300">02 REASON</span> <span className="text-slate-600">(Claude Haiku)</span></div>
+          <div className="text-slate-500">│  "Lucid L-USDC 7.2% vs Aave 5.8%. Edge 1.4% on $400 idle."</div>
+          <div className="text-slate-500">│  Proposed: lucid_mint 400 USDC → Kite AI (confidence: 0.89)</div>
+          <div className="text-purple-400">└ <span className="text-emerald-400">done</span> <span className="text-slate-600">1.3s</span></div>
+          <div className="h-1" />
+
+          <div className="text-amber-400">┌ <span className="text-slate-300">03 VALIDATE</span></div>
+          <div className="text-slate-500">│  gas_reserve ✓  balance_check ✓  confidence ✓  leverage ✓</div>
+          <div className="text-slate-500">│  position_size ✓  health_factor ✓  cooldown ✓  drawdown ✓</div>
+          <div className="text-slate-500">│  simulator ✓  policy ✓</div>
+          <div className="text-amber-400">└ <span className="text-emerald-400">10/10 passed</span></div>
+          <div className="h-1" />
+
+          <div className="text-cyan-400">┌ <span className="text-slate-300">04 EXECUTE</span></div>
+          <div className="text-slate-500">│  Minting 400 USDC → L-USDC via Lucid (Arbitrum → Kite AI)</div>
+          <div className="text-slate-500">│  tx: 0x4a7f2e...c8d1 <span className="text-emerald-400">confirmed</span></div>
+          <div className="text-cyan-400">└ <span className="text-emerald-400">done</span> <span className="text-slate-600">2.1s</span></div>
+          <div className="h-1" />
+
+          <div className="text-emerald-400">┌ <span className="text-slate-300">05 ATTEST</span> <span className="text-slate-600">(Kite AI)</span></div>
+          <div className="text-slate-500">│  Writing attestation to chainId 2366...</div>
+          <div className="text-slate-500">│  kite tx: 0x9f3e1...a4b2</div>
+          <div className="text-slate-500">│  verify: https://kitescan.ai/tx/0x9f3e1...a4b2</div>
+          <div className="text-emerald-400">└ <span className="text-emerald-400">attested</span></div>
+
+          <div className="h-2" />
+          <div className="text-slate-500">{'═'.repeat(60)}</div>
+          <div className="text-emerald-400">✓ Cycle #47 COMPLETE <span className="text-slate-600">(4.2s) — next in 60s</span></div>
         </div>
       </motion.div>
     </section>
