@@ -14,8 +14,8 @@
     "./cli": { "import": "./src/cli/index.js" }
   },
   "bin": {
-    "kard-agent": "./src/cli/index.js",
-    "kard": "./src/cli/index.js"
+    "kard-agent": "src/cli/index.js",
+    "kard": "src/cli/index.js"
   },
   "files": [
     "src",
