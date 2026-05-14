@@ -1,0 +1,85 @@
+# @kard/agent — Example fleet config
+#
+# Run:  kard fleet run examples/fleet.yml --interval 60s
+#
+# Mix LLM providers across agents — Claude / DeepSeek / GPT / Ollama all on
+# one device, each agent picking the best brain for its job. Per-provider
+# token budgets keep each credit pool independent.
+
+# Default provider (used when an agent doesn't override)
+provider: anthropic
+
+# Per-provider per-minute budgets — each pool is independent.
+token_budget_per_min:
+  anthropic: 200000
+  deepseek:  1000000
+  openai:    150000
+  openrouter: 300000
+  ollama:    9999999    # local model — effectively unlimited
+
+global_risk:
+  max_per_market_pct: 0.15
+  max_bucket_pct: 0.50
+  max_total_leverage: 4.0
+  max_daily_drawdown_pct: 0.08
+
+agents:
+  # Claude on the highest-stakes agents — best reasoning for goal mode
+  - id: alpha-yield
+    provider: claude
+    model: claude-haiku-4-5-20251001
+    goal: "park idle USDC at the highest sustainable yield"
+    strategy: KITE_YIELD
+    account: 0
+    restrict_universe: [USDC, USDT]
+
+  - id: beta-perps
+    provider: claude
+    goal: "trade BTC/ETH perps with funding-bias entries"
+    strategy: PERPS_TRADER
+    account: 1
+    restrict_universe: [BTC, ETH]
+
+  # DeepSeek — cheap, fast, great for high-frequency rebalancing decisions
+  - id: gamma-rebalance
+    provider: deepseek
+    goal: "keep stablecoin allocation within 5% of target"
+    strategy: USDT_YIELD
+    account: 2
+
+  - id: delta-funding-arb
+    provider: deepseek
+    goal: "collect positive funding via short-perp + long-spot basis"
+    strategy: PERPS_TRADER
+    account: 3
+    restrict_universe: [SOL, AVAX, ARB]
+
+  # GPT — for an agent that needs strict JSON discipline
+  - id: epsilon-lrt
+    provider: openai
+    model: gpt-4o-mini
+    goal: "rotate ETH into the highest-APR LRT on Arbitrum"
+    strategy: KITE_YIELD
+    account: 4
+    restrict_universe: [ETH, WETH]
+
+  # Local Ollama — zero API cost, good for low-stakes monitoring
+  - id: zeta-monitor
+    provider: ollama
+    model: llama3.1
+    goal: "alert me on any health-factor drift below 1.5"
+    strategy: CONSERVATIVE
+    account: 5
+
+  # OpenRouter — access any model without separate accounts
+  - id: eta-explorer
+    provider: openrouter
+    model: anthropic/claude-3.5-sonnet
+    goal: "discover new yield opportunities on Pendle and Aerodrome"
+    strategy: AGGRESSIVE
+    account: 6
+
+  # Add up to 100 agents here. Each can use any provider you have
+  # credentials for. They share the skill registry, strategy library,
+  # global risk umbrella, and coordination channel — but each thinks
+  # with its own brain.

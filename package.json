@@ -1,0 +1,63 @@
+{
+  "name": "@kard/agent",
+  "version": "0.1.0",
+  "description": "Self-hosted agentic-trading runtime for Kite. SDK + MCP + CLI.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": { "import": "./src/index.js" },
+    "./mcp": { "import": "./src/mcp-server.js" },
+    "./cli": { "import": "./src/cli/index.js" }
+  },
+  "bin": {
+    "kard-agent": "./src/cli/index.js",
+    "kard": "./src/cli/index.js"
+  },
+  "files": [
+    "src",
+    "skills",
+    "contracts",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "mcp": "node src/mcp-server.js",
+    "cli": "node src/cli/index.js",
+    "start": "node src/cli/index.js run",
+    "test": "node --test src/*.test.js src/**/*.test.js"
+  },
+  "keywords": [
+    "kite",
+    "kite-ai",
+    "agentic-trading",
+    "perps",
+    "hyperliquid",
+    "aave",
+    "lucid",
+    "mcp",
+    "ai-agent",
+    "passport",
+    "x402",
+    "defi",
+    "text-to-onchain"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@nktkas/hyperliquid": "^0.24.0",
+    "@t402/core": "^2.7.1",
+    "@t402/evm": "^2.7.1",
+    "@t402/express": "^2.7.1",
+    "@t402/fetch": "^2.7.1",
+    "dotenv": "^16.6.1",
+    "ethers": "^6.16.0",
+    "yaml": "^2.6.0",
+    "zod": "^3.23.8"
+  }
+}

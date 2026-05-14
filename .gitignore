@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.*
+*.log
+dist/
+.DS_Store
+Thumbs.db
+.claude/
+.kard/
+.vscode/
+docs-site/dist/
+docs-site/node_modules/
+*.tsbuildinfo

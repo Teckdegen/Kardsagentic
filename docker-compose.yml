@@ -1,0 +1,36 @@
+# @kard/agent — production compose
+# Run:    docker compose up -d
+# Logs:   docker compose logs -f kard
+# Stop:   docker compose down
+#
+# Auto-restarts on crash, keeps the encrypted keystore + ledger on the host.
+# Configure via .env file (see .env.example below in README).
+
+services:
+  kard:
+    build: .
+    image: kard:latest
+    container_name: kard
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Persist password in env so keystore auto-unlocks. Use Docker secrets
+      # for stricter setups: docker secret create kard_password password.txt
+      # then mount: secrets: [kard_password] and: KARD_PASSWORD_FILE=/run/secrets/kard_password
+      KARD_HOME: /data
+      LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
+      HYPERLIQUID_NETWORK: ${HYPERLIQUID_NETWORK:-testnet}
+    volumes:
+      # Encrypted keystore + ledger + goals + streams + reports persist here
+      - ./data:/data
+      # Optional: mount your own skills directory
+      - ./skills:/app/skills:ro
+    # No ports exposed — kard is outbound-only (chats poll, RPCs are HTTPS,
+    # x402 client makes outbound payments). Adding a port = adding attack surface.
+    # ports: []
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "node src/cli/index.js"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
