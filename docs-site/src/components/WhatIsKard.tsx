@@ -3,26 +3,6 @@ import { motion } from 'motion/react'
 export default function WhatIsKard () {
   return (
     <section className="max-w-[1200px] mx-auto px-6 pt-20">
-      {/* Big statement */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-24"
-      >
-        <h2 className="text-[40px] md:text-[60px] lg:text-[72px] font-black tracking-[-0.04em] leading-[0.95]">
-          <span className="text-white">You describe.</span><br />
-          <span className="text-white">We execute.</span>
-        </h2>
-        <p className="mt-6 text-[16px] md:text-[18px] text-[#71717a] max-w-[500px] mx-auto leading-relaxed">
-          Kard is an autonomous AI trading agent <span className="text-white font-medium">that actually works</span>.
-          <br /><br />
-          Purpose-built for DeFi, Kard translates your ideas into executable strategies
-          that perform trades on your behalf <span className="text-white font-medium">24/7</span>.
-        </p>
-      </motion.div>
-
       {/* How it works — 3 steps like Dawn */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

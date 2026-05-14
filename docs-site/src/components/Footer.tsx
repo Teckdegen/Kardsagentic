@@ -1,6 +1,7 @@
 import HlsVideo from './HlsVideo'
 
 const FOOTER_VIDEO = 'https://customer-cbeadsgr09pnsezs.cloudflarestream.com/12a9780eeb1ea015801a5f55cf2e9d3d/manifest/video.m3u8'
+const FOOTER_MP4 = 'https://customer-cbeadsgr09pnsezs.cloudflarestream.com/12a9780eeb1ea015801a5f55cf2e9d3d/downloads/default.mp4'
 
 export default function Footer () {
   return (
@@ -11,6 +12,7 @@ export default function Footer () {
         <div className="absolute inset-0">
           <HlsVideo
             src={FOOTER_VIDEO}
+            fallbackMp4={FOOTER_MP4}
             className="w-full h-full object-cover grayscale"
           />
         </div>
