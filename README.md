@@ -1,4 +1,4 @@
-# @kard/agent
+# kard-agent
 
 Self-hosted agentic-trading runtime for Kite.
 
@@ -11,7 +11,7 @@ Self-hosted agentic-trading runtime for Kite.
 curl -fsSL https://agentpassport.ai/install.sh | bash
 
 # 2. Install Kard
-npm install -g @kard/agent
+npm install -g kard-agent
 ```
 
 Requires **Node ≥ 22**.
