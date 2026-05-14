@@ -7,23 +7,44 @@ export default function Docs () {
 
       <Section id="quickstart" title="Quick Start">
         <P>Get Kard running in under 5 minutes. You need <B>Node.js 22+</B> and one API key (or Ollama for free local models).</P>
-        <Code code={`git clone https://github.com/Teckdegen/Kardsagentic kard
-cd kard && npm install
-node src/cli/index.js init
+        <Code code={`npm install -g @kard/agent
+kard init
 export ANTHROPIC_API_KEY=sk-ant-your-key
-node src/cli/index.js claude "park my USDC at the highest yield"
-node src/cli/index.js run --strategy KITE_YIELD --interval 60s`} />
+kard claude "park my USDC at the highest yield"
+kard run --strategy KITE_YIELD --interval 60s`} />
         <Callout type="info">That's it. The agent is now scanning 8 protocols across 5 chains every 60 seconds, executing the best yield opportunity, and attesting every action on Kite AI.</Callout>
       </Section>
 
       <Section id="install" title="Installation">
-        <P>Clone the repository and install dependencies.</P>
+        <H3>Option A — npm (recommended)</H3>
+        <P>Install globally as a CLI tool. No cloning needed.</P>
+        <Code code={`npm install -g @kard/agent
+kard help`} />
+        <Callout type="tip">Or use without installing: <code>npx @kard/agent help</code></Callout>
+        <H3>Option B — from source</H3>
+        <P>Clone the repo if you want to modify the code or contribute.</P>
         <Code code={`git clone https://github.com/Teckdegen/Kardsagentic kard
 cd kard
-npm install`} />
-        <P>Verify the installation:</P>
-        <Code code={`node src/cli/index.js help`} />
-        <Callout type="tip">If you want to use the <code>kard</code> shorthand globally: <code>npm link</code> after install.</Callout>
+npm install
+npm link    # makes 'kard' available globally`} />
+        <P>Verify:</P>
+        <Code code={`kard help`} />
+        <H3>Use as an SDK</H3>
+        <P>Import into your own Node.js project:</P>
+        <Code code={`npm install @kard/agent`} />
+        <Code code={`import { createAgent, compileStrategy } from '@kard/agent'
+
+// Compile a strategy from plain English
+const plan = await compileStrategy("park USDC at highest yield", {
+  provider: 'anthropic'
+})
+
+// Create and run an agent
+const agent = await createAgent({
+  provider: 'anthropic',
+  strategy: 'KITE_YIELD'
+})
+agent.start(60_000) // check every 60s`} />
       </Section>
 
       <Section id="wallet" title="Wallet Setup">
