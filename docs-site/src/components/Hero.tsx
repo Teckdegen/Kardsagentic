@@ -58,14 +58,14 @@ export default function Hero () {
       </section>
 
       {/* ═══ SECOND SECTION — "You describe. We execute." ═══ */}
-      <section className="max-w-[1200px] mx-auto px-6 py-28 md:py-36 text-center">
+      <section className="max-w-[1200px] mx-auto px-6 py-28 md:py-36 text-center overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-[48px] md:text-[72px] lg:text-[84px] font-black tracking-[-0.04em] leading-[0.95]">
+          <h2 className="text-[clamp(48px,12vw,84px)] font-black tracking-[-0.04em] leading-[0.95]">
             <span className="text-white">You describe.</span><br />
             <span className="text-white">We execute.</span>
           </h2>
