@@ -41,9 +41,7 @@ export default function Hero () {
             transition={{ duration: 0.6 }}
             className="text-[48px] md:text-[72px] lg:text-[88px] font-black tracking-[-0.04em] leading-[0.9] italic"
           >
-            <span className="text-white">The most </span>
-            <span className="text-[#2563eb]">powerful</span>
-            <span className="text-white"> way to run AI agents.</span>
+            <span className="text-white">The most powerful way to run AI agents.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -52,31 +50,32 @@ export default function Hero () {
             className="mt-8 text-[15px] md:text-[17px] text-[#a1a1aa] max-w-[550px] mx-auto leading-relaxed"
           >
             <span className="text-white font-medium">Kard</span> translates your ideas into on-chain execution,
-            performing <span className="text-[#2563eb]">how</span> you want, <span className="text-[#2563eb]">when</span> you want, on <span className="text-white font-medium">any DeFi protocol</span>.
+            performing how you want, when you want, on <span className="text-white font-medium">any DeFi protocol</span>.
           </motion.p>
         </div>
       </section>
 
       {/* ═══ SECOND SECTION — "You describe. We execute." ═══ */}
-      <section className="max-w-[1200px] mx-auto px-6 py-28 md:py-36 text-center overflow-hidden">
+      <section className="max-w-[1200px] mx-auto px-6 py-28 md:py-36 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.5 }}
+          className="max-w-[500px]"
         >
-          <h2 className="text-[clamp(48px,12vw,84px)] font-black tracking-[-0.04em] leading-[0.95]">
+          <h2 className="text-[40px] md:text-[52px] font-light tracking-[-0.03em] leading-[1.1]">
             <span className="text-white">You describe.</span><br />
             <span className="text-white">We execute.</span>
           </h2>
-          <p className="mt-8 text-[16px] md:text-[18px] text-[#71717a] max-w-[500px] mx-auto leading-relaxed">
+          <p className="mt-8 text-[15px] text-[#71717a] leading-relaxed">
             Kard is an autonomous AI trading agent <span className="text-white font-bold">that actually works</span>.
           </p>
-          <p className="mt-4 text-[16px] md:text-[18px] text-[#71717a] max-w-[500px] mx-auto leading-relaxed">
+          <p className="mt-4 text-[15px] text-[#71717a] leading-relaxed">
             Purpose-built for DeFi, Kard translates your ideas into executable strategies
             that perform trades on your behalf <span className="text-white font-bold italic">24/7</span>.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-4">
+          <div className="mt-10 flex items-center gap-4">
             <a
               href="#/docs"
               className="px-6 py-3 rounded-lg bg-white text-black text-[14px] font-semibold hover:bg-[#e4e4e7] transition-colors"
