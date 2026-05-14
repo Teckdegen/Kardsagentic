@@ -41,8 +41,12 @@ export default function DocsPage () {
           {NAV.map(item => (
             <a
               key={item.id}
-              href={`#${item.id}`}
-              onClick={() => setActive(item.id)}
+              href={`#/docs`}
+              onClick={(e) => {
+                e.preventDefault()
+                setActive(item.id)
+                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+              }}
               className={`block px-3 py-2 rounded-lg text-[13px] transition-colors ${
                 active === item.id
                   ? 'bg-white/10 text-white font-medium'
