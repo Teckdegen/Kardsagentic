@@ -12,11 +12,12 @@ export default function App () {
   }, [])
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
-      {/* Global ambient glows — navy tinted */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-15%] left-[15%] w-[700px] h-[700px] rounded-full bg-blue-600/[0.04] blur-[140px]" />
-        <div className="absolute top-[50%] right-[5%] w-[500px] h-[500px] rounded-full bg-emerald-500/[0.03] blur-[120px]" />
+    <div className="min-h-screen w-full relative">
+      {/* Animated mesh gradient background */}
+      <div className="mesh-gradient">
+        <div className="orb orb-1" />
+        <div className="orb orb-2" />
+        <div className="orb orb-3" />
       </div>
 
       <div className="relative z-10">

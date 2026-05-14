@@ -3,152 +3,135 @@ import { ArrowRight, Github, BookOpen } from 'lucide-react'
 
 export default function Hero () {
   return (
-    <section className="relative w-full max-w-[1200px] mx-auto pt-8 px-6 md:px-12">
+    <section className="relative w-full max-w-[1200px] mx-auto pt-6 px-5 md:px-10">
       {/* Nav */}
       <motion.nav
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between mb-20"
+        transition={{ duration: 0.4 }}
+        className="flex items-center justify-between py-4"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#0f1d32] border border-white/[0.08] flex items-center justify-center">
-            <img src="/logo.png" alt="Kard" className="w-5 h-5 object-contain" />
-          </div>
-          <span className="text-[15px] font-semibold text-white tracking-tight">Kard</span>
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Kard" className="w-7 h-7 object-contain" />
+          <span className="text-[16px] font-bold text-white">Kard</span>
         </div>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#what-is-kard" className="text-[13px] text-slate-400 hover:text-white transition-colors">What is Kard</a>
+        <div className="hidden md:flex items-center gap-7">
+          <a href="#features" className="text-[13px] text-slate-400 hover:text-white transition-colors">Features</a>
           <a href="#how-it-works" className="text-[13px] text-slate-400 hover:text-white transition-colors">How it works</a>
           <a href="#kite" className="text-[13px] text-slate-400 hover:text-white transition-colors">Kite AI</a>
           <a href="#/docs" className="text-[13px] text-slate-400 hover:text-white transition-colors">Docs</a>
         </div>
-        <a
-          href="https://github.com/Teckdegen/Kardsagentic"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0f1d32] border border-white/[0.08] text-[12px] font-medium text-slate-300 hover:border-white/[0.15] hover:text-white transition-all"
-        >
-          <Github size={14} />
-          GitHub
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://github.com/Teckdegen/Kardsagentic"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-[13px] text-slate-400 hover:text-white transition-colors"
+          >
+            <Github size={15} />
+            <span className="hidden sm:inline">GitHub</span>
+          </a>
+          <a
+            href="#/docs"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-[#030712] text-[12px] font-semibold hover:bg-slate-200 transition-colors"
+          >
+            Get started
+          </a>
+        </div>
       </motion.nav>
 
-      {/* Hero content */}
-      <div className="max-w-4xl mx-auto text-center">
+      {/* Hero */}
+      <div className="max-w-4xl mx-auto text-center pt-20 md:pt-28 pb-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.08] border border-emerald-500/[0.2] text-[12px] font-semibold text-emerald-400 mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 pulse-soft" />
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-strong text-[12px] font-medium text-emerald-400 mb-10">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 pulse-glow" />
             Live on Kite AI — Testnet &amp; Mainnet
           </div>
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-[48px] md:text-[72px] font-bold tracking-tight leading-[1.0] text-white"
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="text-[52px] md:text-[80px] lg:text-[88px] font-extrabold tracking-[-0.03em] leading-[0.95]"
         >
-          Your AI trades.<br />
-          <span className="gradient-text-accent">Kite verifies.</span>
+          <span className="text-gradient-subtle">Your AI trades.</span>
+          <br />
+          <span className="text-gradient">Kite verifies.</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.35 }}
-          className="mt-6 text-[16px] md:text-[18px] leading-relaxed text-slate-400 max-w-2xl mx-auto"
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-7 text-[17px] md:text-[19px] leading-relaxed text-slate-400 max-w-[620px] mx-auto"
         >
-          Kard is a self-hosted agent runtime that turns plain-English strategies
-          into real on-chain execution — lending, trading, bridging — with every
-          action cryptographically attested on Kite AI.
+          Self-hosted AI agent that turns plain English into real DeFi execution.
+          Lending, perps, bridging — every action attested on Kite AI. You hold every key.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.45 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <a
             href="#/docs"
-            className="group flex items-center gap-2 px-7 py-3.5 rounded-full bg-white text-[#0a1628] text-[14px] font-semibold hover:bg-slate-100 transition-colors"
+            className="group flex items-center gap-2.5 px-8 py-4 rounded-xl bg-white text-[#030712] text-[14px] font-bold hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-all"
           >
             <BookOpen size={16} />
             Get started
-            <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
           </a>
           <a
-            href="#what-is-kard"
-            className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0f1d32] border border-white/[0.08] text-[14px] font-medium text-slate-300 hover:border-white/[0.15] hover:text-white transition-all"
+            href="https://github.com/Teckdegen/Kardsagentic"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2.5 px-8 py-4 rounded-xl glass-strong text-[14px] font-semibold text-slate-200 hover:bg-white/[0.06] transition-all"
           >
-            Learn more
+            <Github size={16} />
+            View source
           </a>
         </motion.div>
-
-        {/* Terminal preview — the main visual */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-          className="mt-16 max-w-3xl mx-auto"
-        >
-          <div className="terminal shadow-2xl shadow-blue-500/[0.03]">
-            <div className="terminal-header">
-              <div className="terminal-dot bg-[#ff5f57]" />
-              <div className="terminal-dot bg-[#febc2e]" />
-              <div className="terminal-dot bg-[#28c840]" />
-              <span className="ml-3 text-[11px] text-slate-500 font-mono">kard — autonomous agent</span>
-            </div>
-            <div className="terminal-body text-left">
-              <Line prompt>kard claude "park my USDC at the highest yield"</Line>
-              <Line />
-              <Line color="blue">⟡ Compiling strategy with Claude Haiku...</Line>
-              <Line color="dim">  Scanning 8 protocols across 5 chains...</Line>
-              <Line />
-              <Line color="green">✓ Best opportunity: Lucid L-USDC on Kite AI — 7.2% APY</Line>
-              <Line color="green">✓ Risk engine: 10/10 checks passed</Line>
-              <Line color="green">✓ Simulator: eth_call pre-flight OK</Line>
-              <Line />
-              <Line color="cyan">→ Executing: supply 300 USDC → Lucid (Arbitrum → Kite AI)</Line>
-              <Line color="dim">  tx: 0x4a7f2e...c8d1 confirmed (block 182,441,203)</Line>
-              <Line />
-              <Line color="purple">⛓ Attestation written to Kite AI</Line>
-              <Line color="dim">  https://kitescan.ai/tx/0x9f3e1...a4b2</Line>
-              <Line />
-              <Line color="green">✓ Cycle complete — next check in 60s</Line>
-              <Line prompt />
-            </div>
-          </div>
-        </motion.div>
       </div>
+
+      {/* Terminal — the hero visual */}
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className="mt-8 max-w-[800px] mx-auto"
+      >
+        <div className="terminal glow-sm">
+          <div className="terminal-header">
+            <div className="terminal-dot bg-[#ff5f57]" />
+            <div className="terminal-dot bg-[#febc2e]" />
+            <div className="terminal-dot bg-[#28c840]" />
+            <span className="ml-4 text-[11px] text-slate-500 font-mono">kard — cycle #47</span>
+          </div>
+          <div className="terminal-body text-left">
+            <div className="text-slate-500">$ kard run --strategy KITE_YIELD --interval 60s</div>
+            <div className="h-3" />
+            <div className="text-blue-400">⟡ <span className="text-slate-300">Scanning 8 protocols across 5 chains...</span></div>
+            <div className="text-emerald-400">✓ <span className="text-slate-300">Lucid L-USDC on Kite AI: <span className="text-emerald-400 font-medium">7.2% APY</span></span></div>
+            <div className="text-emerald-400">✓ <span className="text-slate-300">Risk engine: <span className="text-emerald-400">10/10</span> checks passed</span></div>
+            <div className="text-emerald-400">✓ <span className="text-slate-300">Simulator pre-flight OK</span></div>
+            <div className="h-2" />
+            <div className="text-cyan-400">→ <span className="text-slate-300">Executing: supply 300 USDC → Lucid (Arbitrum → Kite AI)</span></div>
+            <div className="text-slate-500">  tx: 0x4a7f2e...c8d1 confirmed</div>
+            <div className="h-2" />
+            <div className="text-purple-400">⛓ <span className="text-slate-300">Attested on Kite AI</span></div>
+            <div className="text-blue-400 text-[12px]">  https://kitescan.ai/tx/0x9f3e1...a4b2</div>
+            <div className="h-2" />
+            <div className="text-emerald-400 font-medium">✓ Cycle complete — next in 60s</div>
+          </div>
+        </div>
+      </motion.div>
     </section>
   )
-}
-
-function Line ({ children, prompt, color }: { children?: React.ReactNode; prompt?: boolean; color?: string }) {
-  const colorClass = {
-    blue: 'text-blue-400',
-    green: 'text-emerald-400',
-    cyan: 'text-cyan-400',
-    purple: 'text-purple-400',
-    dim: 'text-slate-500',
-    red: 'text-red-400'
-  }[color || ''] || 'text-slate-300'
-
-  if (prompt) {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-emerald-400">$</span>
-        <span className="text-slate-200">{children}</span>
-        {!children && <span className="w-2 h-4 bg-slate-400 animate-pulse" />}
-      </div>
-    )
-  }
-  if (!children) return <div className="h-3" />
-  return <div className={colorClass}>{children}</div>
 }

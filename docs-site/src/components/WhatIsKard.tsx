@@ -1,99 +1,95 @@
 import { motion } from 'motion/react'
 import {
-  Brain, Shield, Lock, MessageSquare, TrendingUp, Zap, Code2, Sparkles
+  Brain, Shield, Lock, Sparkles, TrendingUp, Zap, MessageSquare, Code2
 } from 'lucide-react'
 
 const FEATURES = [
   {
     icon: Brain,
     title: 'Text → On-chain',
-    body: 'Write a strategy in plain English. The AI compiles it. Infrastructure validates and executes. Zero code.',
+    body: 'Write a strategy in plain English. AI compiles. Infrastructure executes. Zero code.',
+    gradient: 'from-blue-500 to-cyan-500',
   },
   {
     icon: Shield,
     title: 'Kite-attested',
-    body: 'Every action emits a verifiable attestation on Kite AI. Cryptographically signed, timestamped, permanent.',
+    body: 'Every action → verifiable attestation on Kite AI. Signed, timestamped, permanent.',
+    gradient: 'from-purple-500 to-pink-500',
   },
   {
     icon: Lock,
     title: 'Self-custodial',
-    body: 'Your keys live encrypted on your machine. Kite Passport gates spending with passkey sessions.',
+    body: 'Keys encrypted on your machine. Kite Passport gates spending with passkey sessions.',
+    gradient: 'from-emerald-500 to-teal-500',
   },
   {
     icon: Sparkles,
-    title: 'Bring your own model',
-    body: 'Claude, GPT, DeepSeek, Grok, Gemini, Ollama. Mix providers across agents. Switch any time.',
+    title: 'Any AI model',
+    body: 'Claude, GPT, DeepSeek, Grok, Gemini, Ollama. Mix across agents. Switch any time.',
+    gradient: 'from-amber-500 to-orange-500',
   },
   {
     icon: TrendingUp,
-    title: '11 yield rails',
-    body: 'Aave, Lucid, Morpho, Compound, Pendle, Lido, EtherFi, Beefy, Uniswap V3, Aerodrome, Hyperliquid.',
+    title: '11 yield sources',
+    body: 'Aave, Lucid, Morpho, Compound, Pendle, Lido, Beefy, Uniswap V3, Aerodrome, Hyperliquid.',
+    gradient: 'from-cyan-500 to-blue-500',
   },
   {
     icon: Zap,
     title: 'Self-evolving',
-    body: 'After 50 profitable cycles, the agent writes a skill file and shares it with peer agents in your fleet.',
+    body: '50 profitable cycles → agent writes a skill file and shares it with your fleet.',
+    gradient: 'from-rose-500 to-red-500',
   },
   {
     icon: MessageSquare,
-    title: 'Chat control',
-    body: 'Telegram, Discord, Slack. Message your agent from your phone in natural language. Full AI chatbot.',
+    title: 'Phone control',
+    body: 'Telegram, Discord, Slack. Full natural language. Not slash commands.',
+    gradient: 'from-indigo-500 to-violet-500',
   },
   {
     icon: Code2,
-    title: '.md skills',
-    body: 'Drop a markdown file. Agent learns a new API or venue on next reload. Extensible by design.',
+    title: 'Skill plugins',
+    body: 'Drop a .md file → agent learns a new API. Built-in: CoinGecko, DeFiLlama, Pyth.',
+    gradient: 'from-teal-500 to-emerald-500',
   }
 ]
 
 export default function WhatIsKard () {
   return (
-    <section id="what-is-kard" className="max-w-[1200px] mx-auto mt-32 px-6 md:px-12 scroll-mt-32">
+    <section id="features" className="max-w-[1200px] mx-auto mt-32 px-5 md:px-10 scroll-mt-32">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.6 }}
-        className="text-center max-w-3xl mx-auto"
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.5 }}
+        className="text-center max-w-2xl mx-auto mb-16"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0f1d32] border border-white/[0.06] text-[11px] font-semibold text-slate-400 mb-6">
-          <img src="/logo.png" alt="" className="w-3 h-3 object-contain" />
-          What Kard does
-        </div>
-        <h2 className="text-[36px] md:text-[52px] font-bold tracking-tight leading-[1.05] text-white">
-          The runtime between<br />
-          <span className="gradient-text">intent and execution</span>
+        <h2 className="text-[40px] md:text-[56px] font-extrabold tracking-[-0.03em] leading-[1.0] text-white">
+          Everything you need
         </h2>
-        <p className="mt-6 max-w-2xl mx-auto text-[15px] md:text-[16px] leading-relaxed text-slate-400">
-          Kard isn't a trading bot. It's the deterministic infrastructure AI agents need
-          to move money — text in, plan compiled, risk vetted, transaction signed,
-          receipt attested on Kite AI.
+        <p className="mt-5 text-[16px] leading-relaxed text-slate-400">
+          From intent to execution to proof — in one self-hosted runtime.
         </p>
       </motion.div>
 
-      <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {FEATURES.map((f, i) => (
-          <FeatureCard key={i} idx={i} {...f} />
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.4, delay: i * 0.05 }}
+            className="group gradient-border shine-hover rounded-[20px] p-6 hover:bg-white/[0.03] transition-all"
+          >
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center shadow-lg opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all`}>
+              <f.icon size={18} strokeWidth={2} className="text-white" />
+            </div>
+            <h3 className="mt-5 text-[15px] font-bold text-white">{f.title}</h3>
+            <p className="mt-2 text-[13px] leading-relaxed text-slate-500 group-hover:text-slate-400 transition-colors">{f.body}</p>
+          </motion.div>
         ))}
       </div>
     </section>
-  )
-}
-
-function FeatureCard ({ icon: Icon, title, body, idx }: any) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.4, delay: idx * 0.05 }}
-      className="group rounded-2xl bg-[#0f1d32] border border-white/[0.06] p-6 card-hover"
-    >
-      <div className="w-10 h-10 rounded-xl bg-[#152540] border border-white/[0.06] flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
-        <Icon size={18} strokeWidth={1.5} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
-      </div>
-      <h3 className="mt-4 text-[15px] font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-[13px] leading-relaxed text-slate-500 group-hover:text-slate-400 transition-colors">{body}</p>
-    </motion.div>
   )
 }
