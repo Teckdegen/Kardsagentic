@@ -171,6 +171,46 @@ node src/cli/index.js kill off    # resume`} />
         <Callout type="warning"><code>kard kill on</code> is instant and absolute. Use it if anything looks wrong.</Callout>
       </Section>
 
+      <Section id="risk-limits" title="Risk Limits">
+        <P>Set your own maximum drawdown, leverage caps, position sizes, and more. These are hard limits — the agent cannot exceed them regardless of what the AI suggests.</P>
+        <H3>View current limits</H3>
+        <Code code={`node src/cli/index.js risk show`} />
+        <H3>Set custom limits</H3>
+        <Code code={`# Max daily drawdown before agent halts (default: 8%)
+node src/cli/index.js risk set max_drawdown 5
+
+# Max gross leverage (default: 3x)
+node src/cli/index.js risk set max_leverage 2
+
+# Absolute leverage cap — never exceeded (default: 5x)
+node src/cli/index.js risk set hard_max_leverage 3
+
+# Max % of equity in any single market (default: 20%)
+node src/cli/index.js risk set max_per_market 15
+
+# Max % in correlated assets (default: 50%)
+node src/cli/index.js risk set max_bucket 40
+
+# Max single position in USD (default: $1,000,000)
+node src/cli/index.js risk set max_position_usd 10000
+
+# Skip trades below this USD value (default: $5)
+node src/cli/index.js risk set min_trade_usd 10`} />
+        <H3>Reset to defaults</H3>
+        <Code code={`node src/cli/index.js risk reset`} />
+        <H3>Set via environment variables</H3>
+        <Code code={`# Add to .env:
+KARD_MAX_DRAWDOWN=5
+KARD_MAX_LEVERAGE=2
+KARD_HARD_MAX_LEVERAGE=3
+KARD_MAX_PER_MARKET=15
+KARD_MAX_BUCKET=40
+KARD_MAX_POSITION_USD=10000
+KARD_MIN_TRADE_USD=10`} />
+        <Callout type="info">Limits set via CLI (saved to ~/.kard/risk-limits.json) take priority over env vars. Both override the code defaults.</Callout>
+        <Callout type="warning">If daily drawdown hits your limit, the agent halts ALL trading until the next 24h window. Use <code>kard kill off</code> to manually resume if needed.</Callout>
+      </Section>
+
       <Section id="yields" title="Yield Opportunities">
         <Code code={`node src/cli/index.js opportunities`} />
         <P>Returns live ranked yields across all connected protocols:</P>

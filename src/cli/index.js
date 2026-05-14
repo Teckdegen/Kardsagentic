@@ -701,6 +701,70 @@ async function cmdSelfFund (sub, flags) {
   }
 }
 
+async function cmdRisk (sub, rest, flags) {
+  const { getEffectiveLimits, setUserLimit, resetUserLimits, saveUserLimits } = await import('../risk/engine.js')
+  switch (sub) {
+    case 'show': case undefined: {
+      const limits = getEffectiveLimits()
+      console.log('Current risk limits:\n')
+      console.log(`  Max daily drawdown:     ${(limits.max_daily_drawdown_pct * 100).toFixed(1)}%`)
+      console.log(`  Max leverage (gross):   ${limits.max_total_leverage}x`)
+      console.log(`  Hard max leverage:      ${limits.hard_max_leverage}x`)
+      console.log(`  Max per-market:         ${(limits.max_per_market_pct * 100).toFixed(1)}%`)
+      console.log(`  Max bucket exposure:    ${(limits.max_bucket_pct * 100).toFixed(1)}%`)
+      console.log(`  Max position (USD):     $${limits.hard_max_position_usd.toLocaleString()}`)
+      console.log(`  Min trade (USD):        $${limits.min_trade_usd}`)
+      console.log(`  Max gas % of trade:     ${(limits.max_gas_pct_of_trade * 100).toFixed(1)}%`)
+      console.log(`\n  Config: ~/.kard/risk-limits.json`)
+      return
+    }
+    case 'set': {
+      const [key, value] = rest
+      if (!key || value === undefined) {
+        console.error('usage: kard risk set <limit> <value>\n')
+        console.error('Available limits:')
+        console.error('  max_drawdown          Max daily drawdown % (e.g. 5 = 5%)')
+        console.error('  max_leverage          Max gross leverage (e.g. 3)')
+        console.error('  hard_max_leverage     Absolute leverage cap (e.g. 5)')
+        console.error('  max_per_market        Max % in one market (e.g. 20)')
+        console.error('  max_bucket            Max % in correlated bucket (e.g. 50)')
+        console.error('  max_position_usd      Max single position USD (e.g. 10000)')
+        console.error('  min_trade_usd         Min trade size USD (e.g. 5)')
+        process.exit(2)
+      }
+      const keyMap = {
+        max_drawdown: 'max_daily_drawdown_pct',
+        max_leverage: 'max_total_leverage',
+        hard_max_leverage: 'hard_max_leverage',
+        max_per_market: 'max_per_market_pct',
+        max_bucket: 'max_bucket_pct',
+        max_position_usd: 'hard_max_position_usd',
+        min_trade_usd: 'min_trade_usd',
+      }
+      const pctKeys = ['max_drawdown', 'max_per_market', 'max_bucket']
+      const realKey = keyMap[key] || key
+      let realValue = parseFloat(value)
+      if (pctKeys.includes(key)) realValue = realValue / 100
+      setUserLimit(realKey, realValue)
+      console.log(`✓ ${key} set to ${value}${pctKeys.includes(key) ? '%' : ''}`)
+      console.log(`  Saved to ~/.kard/risk-limits.json`)
+      return
+    }
+    case 'reset':
+      resetUserLimits()
+      console.log('✓ Risk limits reset to defaults')
+      return
+    default:
+      console.error('usage: kard risk <show|set|reset>')
+      console.error('  kard risk show                    View current limits')
+      console.error('  kard risk set max_drawdown 5      Set max drawdown to 5%')
+      console.error('  kard risk set max_leverage 2      Set max leverage to 2x')
+      console.error('  kard risk set max_position_usd 5000')
+      console.error('  kard risk reset                   Reset to defaults')
+      process.exit(2)
+  }
+}
+
 async function cmdConfig (sub, rest) {
   const { defaultConfig, ALL_VENUES, ALL_ACTIONS } = await import('../config.js')
   const cfg = defaultConfig()
@@ -861,6 +925,7 @@ async function main () {
     case 'pnl':            return cmdEarnings({ ...flags, json: false })
     case 'report':         return cmdReport(flags)
     case 'config':         return cmdConfig(positional[0], positional.slice(1))
+    case 'risk':           return cmdRisk(positional[0], positional.slice(1), flags)
     case 'daemon':         return cmdDaemon(flags)
     case 'taxes':          return cmdTaxes(positional[0], positional.slice(1), flags)
     case 'treasury':       return cmdTreasury(positional[0])

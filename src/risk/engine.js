@@ -19,6 +19,7 @@ import path from 'node:path'
 import os from 'node:os'
 
 const KILL_FILE = path.join(os.homedir(), '.kard', 'KILL')
+const USER_LIMITS_FILE = path.join(os.homedir(), '.kard', 'risk-limits.json')
 
 const DEFAULT_BUCKETS = {
   stables:   ['USDC', 'USDT', 'USDC.e', 'DAI', 'L-USDC', 'L-USDT', 'USDT0'],
@@ -42,7 +43,10 @@ const DEFAULT_LIMITS = {
 
 export class RiskEngine {
   constructor (cfg = {}) {
-    this.limits = { ...DEFAULT_LIMITS, ...(cfg.limits || {}) }
+    const userLimits = loadUserLimits()
+    const envLimits = loadEnvLimits()
+    // Priority: user file > env vars > code defaults > constructor override
+    this.limits = { ...DEFAULT_LIMITS, ...envLimits, ...userLimits, ...(cfg.limits || {}) }
     this.buckets = { ...DEFAULT_BUCKETS, ...(cfg.buckets || {}) }
     this.equityHistory = []           // [{ ts, equity }]
     this.maxHistoryPoints = 1440      // 24h at 1-minute resolution
@@ -214,4 +218,56 @@ export function pullKillSwitch () {
 /** CLI helper: clear the kill file */
 export function releaseKillSwitch () {
   if (fs.existsSync(KILL_FILE)) fs.unlinkSync(KILL_FILE)
+}
+
+// ─── User-configurable risk limits ───
+
+/** Load user limits from ~/.kard/risk-limits.json */
+function loadUserLimits () {
+  try {
+    if (fs.existsSync(USER_LIMITS_FILE)) {
+      return JSON.parse(fs.readFileSync(USER_LIMITS_FILE, 'utf8'))
+    }
+  } catch {}
+  return {}
+}
+
+/** Load limits from environment variables */
+function loadEnvLimits () {
+  const env = {}
+  if (process.env.KARD_MAX_DRAWDOWN) env.max_daily_drawdown_pct = parseFloat(process.env.KARD_MAX_DRAWDOWN) / 100
+  if (process.env.KARD_MAX_LEVERAGE) env.max_total_leverage = parseFloat(process.env.KARD_MAX_LEVERAGE)
+  if (process.env.KARD_MAX_POSITION_USD) env.hard_max_position_usd = parseFloat(process.env.KARD_MAX_POSITION_USD)
+  if (process.env.KARD_MAX_PER_MARKET) env.max_per_market_pct = parseFloat(process.env.KARD_MAX_PER_MARKET) / 100
+  if (process.env.KARD_MAX_BUCKET) env.max_bucket_pct = parseFloat(process.env.KARD_MAX_BUCKET) / 100
+  if (process.env.KARD_MIN_TRADE_USD) env.min_trade_usd = parseFloat(process.env.KARD_MIN_TRADE_USD)
+  if (process.env.KARD_HARD_MAX_LEVERAGE) env.hard_max_leverage = parseFloat(process.env.KARD_HARD_MAX_LEVERAGE)
+  return env
+}
+
+/** Save user limits to ~/.kard/risk-limits.json */
+export function saveUserLimits (limits) {
+  const dir = path.dirname(USER_LIMITS_FILE)
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  fs.writeFileSync(USER_LIMITS_FILE, JSON.stringify(limits, null, 2))
+}
+
+/** Get current effective limits (merged) */
+export function getEffectiveLimits () {
+  const userLimits = loadUserLimits()
+  const envLimits = loadEnvLimits()
+  return { ...DEFAULT_LIMITS, ...envLimits, ...userLimits }
+}
+
+/** Set a single user limit */
+export function setUserLimit (key, value) {
+  const current = loadUserLimits()
+  current[key] = value
+  saveUserLimits(current)
+  return current
+}
+
+/** Reset user limits to defaults */
+export function resetUserLimits () {
+  if (fs.existsSync(USER_LIMITS_FILE)) fs.unlinkSync(USER_LIMITS_FILE)
 }

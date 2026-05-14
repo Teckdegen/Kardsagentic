@@ -10,6 +10,7 @@ const NAV = [
   { id: 'first-run', label: 'First Run' },
   { id: 'strategies', label: 'Strategies' },
   { id: 'policy', label: 'Safety & Policy' },
+  { id: 'risk-limits', label: 'Risk Limits' },
   { id: 'yields', label: 'Yield Opportunities' },
   { id: 'attestations', label: 'Attestations' },
   { id: 'fleet', label: 'Multi-Agent Fleet' },
