@@ -386,6 +386,40 @@ node src/cli/index.js verify-lucid USDC     # sanity-checks Lucid controllers`} 
         <P>Before production: confirm KARD_PASSWORD is set, tighten policy, set risk limits low, verify Telegram allow-list, test kill switch.</P>
       </Section>
 
+      <Section id="rpc" title="Custom RPC Endpoints">
+        <P>By default Kard uses public RPCs. If you get rate-limited or want faster execution, set your own endpoints from providers like Alchemy, Infura, or QuickNode.</P>
+        <Code code={`# Add to your .env file:
+
+# Kite AI (required for attestations)
+KITE_RPC_URL=https://rpc.gokite.ai
+
+# Arbitrum
+ARB_RPC_URL=https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY
+ARB_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
+
+# Base
+BASE_RPC_URL=https://mainnet.base.org
+BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+
+# Optimism
+OP_RPC_URL=https://mainnet.optimism.io
+
+# Polygon
+POLYGON_RPC_URL=https://polygon-rpc.com
+
+# Avalanche
+AVAX_RPC_URL=https://api.avax.network/ext/bc/C/rpc`} />
+        <Callout type="tip">For testnet, you only need <code>ARB_SEPOLIA_RPC_URL</code> and <code>KITE_RPC_URL</code>. The agent auto-detects which chains to use based on <code>KARD_ENV</code>.</Callout>
+        <P>Free RPC providers:</P>
+        <Table headers={['Provider', 'Free tier', 'URL']} rows={[
+          ['Alchemy', '300M compute/month', 'alchemy.com'],
+          ['Infura', '100K requests/day', 'infura.io'],
+          ['QuickNode', '10M API credits', 'quicknode.com'],
+          ['Ankr', 'Unlimited public', 'ankr.com'],
+          ['Public (default)', 'Rate-limited', 'Built-in'],
+        ]} />
+      </Section>
+
       <Section id="all-commands" title="All Commands">
         <Code code={`kard                              Interactive REPL
 kard help                         Show all commands

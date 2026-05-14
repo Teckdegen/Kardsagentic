@@ -21,6 +21,7 @@ const NAV = [
   { id: 'mcp', label: 'MCP Server' },
   { id: 'deploy', label: 'Deploy 24/7' },
   { id: 'mainnet', label: 'Go Mainnet' },
+  { id: 'rpc', label: 'Custom RPC Endpoints' },
   { id: 'all-commands', label: 'All Commands' },
 ]
 
