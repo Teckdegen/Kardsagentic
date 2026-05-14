@@ -2,66 +2,75 @@ import { motion } from 'motion/react'
 
 export default function HowItWorks () {
   return (
-    <section id="how-it-works" className="max-w-[1200px] mx-auto mt-32 px-5 md:px-10 scroll-mt-32">
+    <section id="how-it-works" className="max-w-[1200px] mx-auto px-6 pt-32">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.5 }}
-        className="text-center max-w-2xl mx-auto mb-12"
+        className="text-center mb-16"
       >
-        <h2 className="text-[40px] md:text-[56px] font-extrabold tracking-[-0.03em] leading-[1.0] text-white">
-          Every cycle
+        <h2 className="text-[40px] md:text-[60px] font-black tracking-[-0.04em] leading-[0.95]">
+          <span className="text-white">The </span>
+          <span className="text-[#2563eb] italic">all-in-one</span>
+          <span className="text-white"> terminal<br />at your fingertips.</span>
         </h2>
-        <p className="mt-5 text-[16px] leading-relaxed text-slate-400">
-          Intelligence proposes. Infrastructure executes. Kite verifies.
-        </p>
       </motion.div>
 
-      {/* Big terminal showing a full cycle */}
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.6 }}
-        className="terminal glow-blue max-w-[860px] mx-auto"
-      >
+      {/* Feature rows — alternating layout like Dawn */}
+      <div className="space-y-6 max-w-[900px] mx-auto">
+        <FeatureRow
+          title="Research"
+          points={['Real-time yield scanning across 8 protocols', 'Live funding rates and APY comparison', 'Risk-free backtesting on historical data']}
+          terminal={`$ kard opportunities\n\n 1. Morpho USDC (Base)     8.4% APY  low risk\n 2. Lucid L-USDC (Kite)    7.2% APY  low risk\n 3. Aave USDC (Arbitrum)   5.8% APY  low risk\n 4. Compound (Arbitrum)    5.4% APY  low risk\n 5. Pendle PT-USDC (Base)  9.1% APY  fixed`}
+          reverse={false}
+        />
+        <FeatureRow
+          title="Execution"
+          points={['On-chain trades across 5 chains', 'No platform fees — keep 100% of profits', 'Custom strategies and risk limits']}
+          terminal={`$ kard claude "park USDC at highest yield" --execute\n\n✓ Scanning protocols...\n✓ Best: Lucid L-USDC 7.2% (Kite AI)\n✓ Risk engine: passed\n→ Supplying 500 USDC to Lucid\n✓ tx: 0x4a7f...c8d1 confirmed\n✓ Attested on Kite AI`}
+          reverse={true}
+        />
+        <FeatureRow
+          title="Infrastructure"
+          points={['Self-hosted — your keys, your machine', 'Auto gas bridging across L2s', '24/7 autonomous operation with kill switch']}
+          terminal={`$ kard gas\n\n Arbitrum    ETH  0.045  ✓ OK\n Base        ETH  0.032  ✓ OK\n Optimism    ETH  0.028  ✓ OK\n Kite AI     KITE 2.500  ✓ OK\n\n✓ Gas healthy on all chains.\n  Auto-bridge: Arbitrum → Base/Optimism when low.`}
+          reverse={false}
+        />
+      </div>
+    </section>
+  )
+}
+
+function FeatureRow ({ title, points, terminal, reverse }: { title: string; points: string[]; terminal: string; reverse: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.5 }}
+      className={`grid grid-cols-1 lg:grid-cols-2 gap-6 items-center ${reverse ? 'lg:direction-rtl' : ''}`}
+      style={reverse ? { direction: 'rtl' } : {}}
+    >
+      <div style={{ direction: 'ltr' }}>
+        <h3 className="text-[22px] font-bold text-white mb-4">{title}</h3>
+        <ul className="space-y-2.5">
+          {points.map((p, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#71717a]">
+              <span className="text-[#2563eb] mt-0.5">•</span>
+              {p}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="terminal" style={{ direction: 'ltr' }}>
         <div className="terminal-header">
           <div className="terminal-dot bg-[#ff5f57]" />
           <div className="terminal-dot bg-[#febc2e]" />
           <div className="terminal-dot bg-[#28c840]" />
-          <span className="ml-4 text-[11px] text-slate-500 font-mono">kard run --strategy KITE_YIELD</span>
         </div>
-        <div className="terminal-body text-left leading-[2]">
-          <div className="text-slate-600">{'━'.repeat(50)}</div>
-          <div className="text-white font-bold">CYCLE #47</div>
-          <div className="text-slate-600">{'━'.repeat(50)}</div>
-          <div className="h-1" />
-
-          <div><span className="text-blue-400 font-bold">01</span> <span className="text-slate-500">│</span> <span className="text-slate-300">Observe</span> <span className="text-slate-600">— reading 5 chains</span></div>
-          <div className="text-slate-500 pl-6">USDC: 1,200 | ETH: 0.045 | Aave supplied: $800</div>
-          <div className="h-1" />
-
-          <div><span className="text-purple-400 font-bold">02</span> <span className="text-slate-500">│</span> <span className="text-slate-300">Reason</span> <span className="text-slate-600">— Claude Haiku (1.3s)</span></div>
-          <div className="text-slate-500 pl-6">"Lucid 7.2% &gt; Aave 5.8%. Move $400 idle USDC."</div>
-          <div className="h-1" />
-
-          <div><span className="text-amber-400 font-bold">03</span> <span className="text-slate-500">│</span> <span className="text-slate-300">Validate</span> <span className="text-emerald-400">— 10/10 passed</span></div>
-          <div className="text-slate-500 pl-6">gas ✓ balance ✓ confidence ✓ leverage ✓ simulator ✓</div>
-          <div className="h-1" />
-
-          <div><span className="text-cyan-400 font-bold">04</span> <span className="text-slate-500">│</span> <span className="text-slate-300">Execute</span> <span className="text-slate-600">— Lucid mint</span></div>
-          <div className="text-slate-500 pl-6">tx: <span className="text-blue-400">0x4a7f2e...c8d1</span> confirmed (2.1s)</div>
-          <div className="h-1" />
-
-          <div><span className="text-emerald-400 font-bold">05</span> <span className="text-slate-500">│</span> <span className="text-slate-300">Attest</span> <span className="text-slate-600">— Kite AI (chainId 2366)</span></div>
-          <div className="text-slate-500 pl-6">kite: <span className="text-purple-400">0x9f3e1...a4b2</span></div>
-          <div className="h-1" />
-
-          <div className="text-slate-600">{'━'.repeat(50)}</div>
-          <div className="text-emerald-400 font-bold">✓ DONE <span className="text-slate-500 font-normal">4.2s — next cycle in 60s</span></div>
-        </div>
-      </motion.div>
-    </section>
+        <div className="terminal-body text-[11.5px] text-[#a1a1aa] whitespace-pre-wrap">{terminal}</div>
+      </div>
+    </motion.div>
   )
 }

@@ -12,17 +12,8 @@ export default function App () {
   }, [])
 
   return (
-    <div className="min-h-screen w-full relative">
-      {/* Animated mesh gradient background */}
-      <div className="mesh-gradient">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="orb orb-3" />
-      </div>
-
-      <div className="relative z-10">
-        {page === 'docs' ? <DocsPage /> : <Home />}
-      </div>
+    <div className="min-h-screen w-full bg-black">
+      {page === 'docs' ? <DocsPage /> : <Home />}
     </div>
   )
 }

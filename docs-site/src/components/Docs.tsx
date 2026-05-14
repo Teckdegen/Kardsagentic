@@ -1,234 +1,135 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import {
-  Terminal, KeyRound, Coins, Wallet, Bot, MessageCircle, ServerCog,
-  ShieldCheck, ChevronRight, Copy, Check, Sparkles
-} from 'lucide-react'
 import { cn } from '../lib/cn'
-
-const STEPS: StepSection[] = [
-  {
-    id: 'install',
-    title: 'Install Kard',
-    icon: Terminal,
-    intro: 'Node 22+ is the only system requirement.',
-    blocks: [
-      { kind: 'code', code: `git clone https://github.com/Teckdegen/Kardsagentic kard\ncd kard\nnpm install` },
-      { kind: 'note', text: 'Verify:' },
-      { kind: 'code', code: `node src/cli/index.js help` }
-    ]
-  },
-  {
-    id: 'wallet',
-    title: 'Create your wallet',
-    icon: Wallet,
-    intro: 'Encrypted keystore at ~/.kard/wallet.json. Your key never leaves your machine.',
-    blocks: [
-      { kind: 'code', code: `node src/cli/index.js init` },
-      { kind: 'note', text: 'Prints your seed phrase ONCE — write it down. Then shows your operator address.' },
-      { kind: 'code', code: `node src/cli/index.js wallet address` }
-    ]
-  },
-  {
-    id: 'llm',
-    title: 'Add an LLM key',
-    icon: Sparkles,
-    intro: 'Bring your own model. Pick one or mix them across agents.',
-    blocks: [
-      {
-        kind: 'code',
-        code: `# Pick one:\nexport ANTHROPIC_API_KEY=sk-ant-...     # Claude\nexport OPENAI_API_KEY=sk-...            # GPT\nexport DEEPSEEK_API_KEY=...             # DeepSeek\nexport OPENROUTER_API_KEY=...           # Any model\n\n# Or free local — no key:\n# ollama pull llama3.1`
-      },
-      { kind: 'note', text: 'Test it:' },
-      { kind: 'code', code: `node src/cli/index.js claude "say hello in 5 words"` }
-    ]
-  },
-  {
-    id: 'testnet',
-    title: 'Fund testnet',
-    icon: Coins,
-    intro: 'Three things to fund. All free. Agent handles everything else.',
-    blocks: [
-      {
-        kind: 'list',
-        items: [
-          ['Kite AI KITE (critical)', 'https://faucet.gokite.ai'],
-          ['Arbitrum Sepolia ETH', 'https://faucet.quicknode.com/arbitrum/sepolia'],
-          ['Arbitrum Sepolia USDC', 'https://staging.aave.com/faucet/']
-        ]
-      },
-      { kind: 'note', text: 'Optional — Hyperliquid perps:' },
-      {
-        kind: 'code',
-        code: `export HYPERLIQUID_NETWORK=testnet\nexport HYPERLIQUID_API_WALLET=0x<api-wallet-pk>\nexport HYPERLIQUID_USER_ADDRESS=0x<your-address>`
-      },
-      { kind: 'note', text: 'Verify gas:' },
-      { kind: 'code', code: `node src/cli/index.js gas` }
-    ]
-  },
-  {
-    id: 'first-run',
-    title: 'First run',
-    icon: Bot,
-    intro: 'Preview, explore, then go autonomous.',
-    blocks: [
-      { kind: 'note', text: '1. Compile a strategy (dry-run):' },
-      { kind: 'code', code: `node src/cli/index.js claude "park USDC at the highest yield"` },
-      { kind: 'note', text: '2. See live yield opportunities:' },
-      { kind: 'code', code: `node src/cli/index.js opportunities` },
-      { kind: 'note', text: '3. Run autonomously:' },
-      { kind: 'code', code: `node src/cli/index.js run --strategy KITE_YIELD --interval 60s` }
-    ]
-  },
-  {
-    id: 'policy',
-    title: 'Safety rules',
-    icon: ShieldCheck,
-    intro: 'Three hard veto layers. Configure once, agent obeys forever.',
-    blocks: [
-      {
-        kind: 'code',
-        code: `# Block perps\nnode src/cli/index.js config deny actions perps_open perps_close\n\n# Only Kite + Arbitrum\nnode src/cli/index.js config allow chains kiteai arbitrum\n\n# Only stablecoins\nnode src/cli/index.js config allow assets USDC USDT\n\n# Emergency stop\nnode src/cli/index.js kill on`
-      }
-    ]
-  },
-  {
-    id: 'telegram',
-    title: 'Connect Telegram',
-    icon: MessageCircle,
-    intro: 'Control from your phone. Full natural language.',
-    blocks: [
-      {
-        kind: 'code',
-        code: `export TELEGRAM_BOT_TOKEN=<token>\nexport TELEGRAM_ALLOW_USERS=<your-user-id>\nexport KARD_ALLOW_EXECUTE=1\n\nnode src/cli/index.js chat telegram`
-      },
-      { kind: 'note', text: 'Message your bot:' },
-      {
-        kind: 'code',
-        code: `"how's my portfolio?"\n"put the idle USDC somewhere better"\n"I want 5% gain this month"\n"stop the agent"`
-      }
-    ]
-  },
-  {
-    id: 'server',
-    title: 'Run 24/7',
-    icon: ServerCog,
-    intro: 'Docker, systemd, or any PaaS.',
-    blocks: [
-      { kind: 'code', code: `cp .env.example .env\n# fill in your keys\ndocker compose up -d\ndocker compose logs -f kard` },
-      { kind: 'note', text: 'Or systemd:' },
-      { kind: 'code', code: `sudo cp examples/kard.service /etc/systemd/system/\nsudo systemctl enable --now kard` }
-    ]
-  },
-  {
-    id: 'going-live',
-    title: 'Go mainnet',
-    icon: KeyRound,
-    intro: 'When testnet runs clean, flip three switches.',
-    blocks: [
-      {
-        kind: 'code',
-        code: `export KARD_ENV=mainnet\nexport HYPERLIQUID_NETWORK=mainnet\nnode src/cli/index.js run --strict\nnode src/cli/index.js verify-lucid USDC`
-      },
-      { kind: 'note', text: 'Fund operator wallet with real ETH on Arbitrum + KITE on Kite AI. Tighten policy. Test kill switch.' }
-    ]
-  }
-]
 
 export default function Docs () {
   return (
-    <div id="install" className="max-w-[1200px] mx-auto mt-16 mb-24 px-6 md:px-12 scroll-mt-32">
-      <Header />
-      <div className="mt-16 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10 lg:gap-16">
-        <SideNav />
-        <main className="min-w-0 space-y-20">
-          {STEPS.map((s, i) => (
-            <Section key={s.id} idx={i} {...s} />
-          ))}
-        </main>
+    <div className="max-w-[900px] mx-auto mt-12 mb-24 px-6">
+      <div className="text-center mb-16">
+        <h1 className="text-[36px] md:text-[48px] font-black tracking-[-0.03em] text-white">Documentation</h1>
+        <p className="mt-4 text-[15px] text-[#71717a]">Everything you need to install, configure, and run Kard.</p>
+      </div>
+
+      <div className="space-y-16">
+        <DocSection title="Install">
+          <Code code={`git clone https://github.com/Teckdegen/Kardsagentic kard\ncd kard\nnpm install\n\n# Verify\nnode src/cli/index.js help`} />
+        </DocSection>
+
+        <DocSection title="Create wallet">
+          <P>Encrypted keystore at ~/.kard/wallet.json. Your key never leaves your machine.</P>
+          <Code code={`node src/cli/index.js init\nnode src/cli/index.js wallet address`} />
+        </DocSection>
+
+        <DocSection title="Add LLM key">
+          <P>Pick any provider. Or use Ollama for free local inference.</P>
+          <Code code={`export ANTHROPIC_API_KEY=sk-ant-...     # Claude\nexport OPENAI_API_KEY=sk-...            # GPT\nexport DEEPSEEK_API_KEY=...             # DeepSeek\nexport OPENROUTER_API_KEY=...           # Any model via OpenRouter\n\n# Free local model:\n# ollama pull llama3.1`} />
+        </DocSection>
+
+        <DocSection title="Fund testnet">
+          <P>Three things. All free on testnet.</P>
+          <ul className="space-y-2 text-[14px] text-[#a1a1aa]">
+            <li>• <a href="https://faucet.gokite.ai" target="_blank" rel="noreferrer" className="text-[#2563eb] hover:underline">Kite AI KITE</a> — critical for attestations</li>
+            <li>• <a href="https://faucet.quicknode.com/arbitrum/sepolia" target="_blank" rel="noreferrer" className="text-[#2563eb] hover:underline">Arbitrum Sepolia ETH</a> — gas</li>
+            <li>• <a href="https://staging.aave.com/faucet/" target="_blank" rel="noreferrer" className="text-[#2563eb] hover:underline">Arbitrum Sepolia USDC</a> — trading capital</li>
+          </ul>
+          <Code code={`# Verify funding\nnode src/cli/index.js gas`} />
+        </DocSection>
+
+        <DocSection title="Run">
+          <Code code={`# Interactive REPL\nnode src/cli/index.js\n\n# Compile strategy (dry-run)\nnode src/cli/index.js claude "park USDC at highest yield"\nnode src/cli/index.js deepseek "long ETH if RSI < 30"\nnode src/cli/index.js gpt "hedge BTC exposure"\n\n# Execute\nnode src/cli/index.js claude "long ETH 2x" --execute\n\n# Autonomous loop\nnode src/cli/index.js run --strategy KITE_YIELD --interval 60s\n\n# Goal mode\nnode src/cli/index.js goal "grow portfolio 5% this month"\nnode src/cli/index.js goal "just trade"`} />
+        </DocSection>
+
+        <DocSection title="All strategies">
+          <Code code={`node src/cli/index.js strategy list\n\n# Available:\n#   CONSERVATIVE    ~3%   Low    Aave lending only\n#   KITE_YIELD      ~7%   Low    Lucid + Aave (Kite-native)\n#   USDT_YIELD      ~8%   Med    USDT consolidation + Aave\n#   BALANCED        ~6%   Med    Aave + liquidity\n#   DELTA_NEUTRAL   ~12%  Med    Long spot + short perp\n#   LP_FARMER       ~15%  Med    Uniswap V3 + Aerodrome\n#   FULL_STACK      ~18%  Med    All protocols combined\n#   PERPS_TRADER    ~20%  High   Hyperliquid + GMX\n\nnode src/cli/index.js run --strategy KITE_YIELD --interval 60s`} />
+        </DocSection>
+
+        <DocSection title="Safety & policy">
+          <Code code={`# Block specific actions\nnode src/cli/index.js config deny actions perps_open perps_close\n\n# Allow only specific chains\nnode src/cli/index.js config allow chains kiteai arbitrum\n\n# Block chains\nnode src/cli/index.js config deny chains avalanche polygon\n\n# Only stablecoins\nnode src/cli/index.js config allow assets USDC USDT\n\n# Block a venue\nnode src/cli/index.js config deny venues hyperliquid\n\n# View policy\nnode src/cli/index.js config show\n\n# Reset\nnode src/cli/index.js config reset\n\n# Emergency stop\nnode src/cli/index.js kill on\nnode src/cli/index.js kill off`} />
+        </DocSection>
+
+        <DocSection title="Yield opportunities">
+          <Code code={`node src/cli/index.js opportunities\n\n# Shows live ranked yields:\n#  1. Morpho USDC (Base)       8.4% APY\n#  2. Lucid L-USDC (Kite AI)   7.2% APY\n#  3. Aave USDC (Arbitrum)     5.8% APY\n#  4. Compound (Arbitrum)      5.4% APY\n#  ...`} />
+        </DocSection>
+
+        <DocSection title="Attestations">
+          <Code code={`# List all attestations\nnode src/cli/index.js attest list\n\n# Verify a specific attestation\nnode src/cli/index.js attest verify 0xYourTxHashHere`} />
+        </DocSection>
+
+        <DocSection title="Multi-agent fleet">
+          <P>Run up to 100 agents with different models and strategies.</P>
+          <Code code={`node src/cli/index.js fleet run examples/fleet.yml --interval 60s`} />
+          <P>Example fleet.yml:</P>
+          <Code code={`provider: anthropic\n\nagents:\n  - id: yield-hunter\n    provider: claude\n    goal: "park USDC at highest yield"\n    strategy: KITE_YIELD\n\n  - id: perps-trader\n    provider: deepseek\n    strategy: PERPS_TRADER\n\n  - id: safe-guard\n    provider: ollama\n    model: llama3.1\n    strategy: CONSERVATIVE`} />
+        </DocSection>
+
+        <DocSection title="Telegram / Discord / Slack">
+          <Code code={`# Telegram\nexport TELEGRAM_BOT_TOKEN=<token>\nexport TELEGRAM_ALLOW_USERS=<your-user-id>\nexport KARD_ALLOW_EXECUTE=1\nnode src/cli/index.js chat telegram\n\n# Discord\nexport DISCORD_BOT_TOKEN=<token>\nnode src/cli/index.js chat discord\n\n# Slack\nexport SLACK_BOT_TOKEN=<token>\nexport SLACK_APP_TOKEN=<token>\nnode src/cli/index.js chat slack`} />
+          <P>Message your bot in plain English:</P>
+          <Code code={`"how's my portfolio?"\n"put the idle USDC somewhere better"\n"I want 5% gain this month"\n"stop the agent"`} />
+        </DocSection>
+
+        <DocSection title="Hyperliquid perps">
+          <Code code={`export HYPERLIQUID_NETWORK=testnet\nexport HYPERLIQUID_API_WALLET=0x<api-wallet-pk>\nexport HYPERLIQUID_USER_ADDRESS=0x<your-address>\n\n# Trade perps\nnode src/cli/index.js claude "long ETH 3x if funding negative" --execute\nnode src/cli/index.js run --strategy PERPS_TRADER --interval 30s`} />
+        </DocSection>
+
+        <DocSection title="Skills">
+          <Code code={`# List installed skills\nnode src/cli/index.js skill list\n\n# Add a skill\nnode src/cli/index.js skill add ./my-skill.md\n\n# Run a skill directly\nnode src/cli/index.js skill run coingecko-price get_price ids=bitcoin\nnode src/cli/index.js skill run defillama-yields pools\nnode src/cli/index.js skill run hyperliquid-funding\n\n# Search marketplace\nnode src/cli/index.js skill search "yield"\n\n# Remove\nnode src/cli/index.js skill remove my-skill`} />
+        </DocSection>
+
+        <DocSection title="Backtesting">
+          <Code code={`node src/cli/index.js backtest claude "long ETH if RSI < 30" --from 2024-01-01 --to 2024-06-01`} />
+        </DocSection>
+
+        <DocSection title="Wallet & Passport">
+          <Code code={`# Kite Passport\nnode src/cli/index.js passport signup you@email.com\nnode src/cli/index.js passport verify <code>\nnode src/cli/index.js passport address\nnode src/cli/index.js passport status\nnode src/cli/index.js passport sessions\nnode src/cli/index.js passport pay 0xRecipient 10 USDC\n\n# Local wallet\nnode src/cli/index.js init\nnode src/cli/index.js wallet list\nnode src/cli/index.js wallet add\nnode src/cli/index.js wallet import\nnode src/cli/index.js wallet address`} />
+        </DocSection>
+
+        <DocSection title="MCP server">
+          <P>Use Kard from Claude Desktop, Cursor, or Claude Code.</P>
+          <Code code={`# Start MCP server\nnode src/cli/index.js mcp\n\n# Claude Desktop config:\n{\n  "mcpServers": {\n    "kard": {\n      "command": "npx",\n      "args": ["-y", "@kard/agent", "mcp"],\n      "env": { "ANTHROPIC_API_KEY": "sk-ant-..." }\n    }\n  }\n}`} />
+        </DocSection>
+
+        <DocSection title="Deploy 24/7">
+          <P>Docker:</P>
+          <Code code={`cp .env.example .env\n# fill in your keys\ndocker compose up -d\ndocker compose logs -f kard`} />
+          <P>systemd:</P>
+          <Code code={`sudo cp examples/kard.service /etc/systemd/system/\nsudo systemctl daemon-reload\nsudo systemctl enable --now kard\njournalctl -u kard -f`} />
+          <P>Daemon mode:</P>
+          <Code code={`node src/cli/index.js daemon --strategy KITE_YIELD --interval 60s\nnode src/cli/index.js daemon --goal "grow 5% this month" --report 5m\nnode src/cli/index.js daemon --provider deepseek`} />
+        </DocSection>
+
+        <DocSection title="Go mainnet">
+          <Code code={`export KARD_ENV=mainnet\nexport HYPERLIQUID_NETWORK=mainnet\n\nnode src/cli/index.js run --strict\nnode src/cli/index.js verify-lucid USDC`} />
+          <P>Fund: real ETH on Arbitrum + KITE on Kite AI. Tighten policy. Test kill switch.</P>
+        </DocSection>
+
+        <DocSection title="All commands">
+          <Code code={`kard                              Interactive REPL\nkard help                         All commands\nkard <provider> "<text>"          Compile strategy\nkard <provider> "<text>" --execute Execute it\nkard run                          Autonomous loop\nkard run --strategy <NAME>        Specific strategy\nkard goal "<text>"                Self-evolving goal\nkard fleet run <yml>              Multi-agent fleet\nkard opportunities                Live ranked yields\nkard gas                          Gas on all chains\nkard skill list|add|remove|run    Skill management\nkard strategy list|save|publish   Strategy management\nkard config show|allow|deny|reset Policy control\nkard attest list|verify           Attestations\nkard passport signup|verify|...   Kite Passport\nkard chat telegram|discord|slack  Chat integrations\nkard backtest <provider> "<text>" Historical backtest\nkard simulate '{tx}' --chain X    Tx simulation\nkard kill on|off                  Emergency stop\nkard wallet list|add|import       Wallet management\nkard init                         Create local wallet\nkard mcp                          MCP server\nkard daemon                       Background daemon\nkard verify-lucid USDC            ABI check`} />
+        </DocSection>
       </div>
     </div>
   )
 }
 
-function Header () {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-      className="text-center max-w-3xl mx-auto"
-    >
-      <h2 className="text-[36px] md:text-[48px] font-bold tracking-tight leading-[1.05] text-white">
-        Installation
-      </h2>
-      <p className="mt-5 text-[15px] leading-relaxed text-slate-400">
-        From a fresh clone to a 24/7 agent on your phone. Everything works on testnet first.
-      </p>
-    </motion.div>
-  )
-}
-
-function SideNav () {
-  return (
-    <aside className="lg:sticky lg:top-8 self-start hidden lg:block">
-      <div className="rounded-xl border border-white/[0.06] bg-[#0f1d32] p-5">
-        <div className="text-[10px] uppercase tracking-[0.15em] font-semibold text-slate-500 mb-4">
-          Steps
-        </div>
-        <ul className="space-y-2">
-          {STEPS.map((s, i) => (
-            <li key={s.id}>
-              <a
-                href={`#${s.id}`}
-                className="flex items-center gap-2.5 text-[13px] text-slate-500 hover:text-white transition-colors"
-              >
-                <span className="font-mono text-[10px] text-slate-600 w-4">{(i + 1).toString().padStart(2, '0')}</span>
-                {s.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </aside>
-  )
-}
-
-function Section ({ id, idx, title, icon: Icon, intro, blocks }: StepSection & { idx: number }) {
+function DocSection ({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <motion.section
-      id={id}
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.5 }}
-      className="scroll-mt-32"
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.4 }}
     >
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-xl bg-[#152540] border border-white/[0.06] flex items-center justify-center">
-          <Icon size={18} strokeWidth={1.5} className="text-blue-400" />
-        </div>
-        <div>
-          <div className="font-mono text-[10px] text-slate-500 uppercase tracking-wider">Step {idx + 1}</div>
-          <h3 className="text-[22px] md:text-[26px] font-bold text-white">{title}</h3>
-        </div>
-      </div>
-      <p className="mt-4 text-[14px] leading-relaxed text-slate-400 max-w-[640px]">{intro}</p>
-      <div className="mt-6 space-y-4">
-        {blocks.map((b, i) =>
-          b.kind === 'code'
-            ? <CodeBlock key={i} code={b.code!} />
-            : b.kind === 'list'
-              ? <LinkList key={i} items={b.items!} />
-              : <p key={i} className="text-[13px] text-slate-500">{b.text}</p>
-        )}
-      </div>
+      <h2 className="text-[22px] font-bold text-white mb-4 pb-2 border-b border-[#1a1a1a]">{title}</h2>
+      <div className="space-y-4">{children}</div>
     </motion.section>
   )
 }
 
-function CodeBlock ({ code }: { code: string }) {
+function P ({ children }: { children: React.ReactNode }) {
+  return <p className="text-[14px] text-[#71717a] leading-relaxed">{children}</p>
+}
+
+function Code ({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
   const copy = async () => {
     await navigator.clipboard.writeText(code)
@@ -240,50 +141,17 @@ function CodeBlock ({ code }: { code: string }) {
       <button
         onClick={copy}
         className={cn(
-          'absolute top-3 right-3 z-10 flex items-center gap-1 px-2.5 py-1.5 rounded-md',
-          'text-[11px] font-medium bg-white/[0.05] text-slate-400 hover:bg-white/[0.1] transition-all',
+          'absolute top-3 right-3 z-10 px-2.5 py-1 rounded text-[11px] font-medium',
+          'bg-white/5 text-[#52525b] hover:text-white hover:bg-white/10 transition-all',
           'opacity-0 group-hover:opacity-100',
           copied && 'opacity-100 text-emerald-400'
         )}
       >
-        {copied ? <Check size={12} /> : <Copy size={12} />}
         {copied ? 'Copied' : 'Copy'}
       </button>
-      <pre className="text-[12.5px] leading-relaxed text-slate-300 px-5 py-4 overflow-x-auto font-mono">
+      <pre className="p-5 text-[12.5px] leading-relaxed text-[#a1a1aa] overflow-x-auto font-mono whitespace-pre-wrap">
         <code>{code}</code>
       </pre>
     </div>
   )
 }
-
-function LinkList ({ items }: { items: [string, string][] }) {
-  return (
-    <ul className="space-y-2">
-      {items.map(([label, url]) => (
-        <li key={url}>
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 text-[13px] text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            {label}
-            <ChevronRight size={12} className="opacity-50" />
-          </a>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-interface StepSection {
-  id: string
-  title: string
-  icon: any
-  intro: string
-  blocks: Block[]
-}
-type Block =
-  | { kind: 'note'; text: string; code?: undefined; items?: undefined }
-  | { kind: 'code'; code: string; text?: undefined; items?: undefined }
-  | { kind: 'list'; items: [string, string][]; text?: undefined; code?: undefined }
