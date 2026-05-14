@@ -12,7 +12,7 @@ export default function Strategies () {
       >
         <h2 className="text-[40px] md:text-[60px] font-black tracking-[-0.04em] leading-[0.95]">
           <span className="text-white">The </span>
-          <span className="text-[#2563eb] italic">fastest</span>
+          <span className="text-white italic">fastest</span>
           <span className="text-white"><br />way to trade.</span>
         </h2>
         <p className="mt-6 text-[14px] text-[#71717a] max-w-[500px] mx-auto">
@@ -47,7 +47,7 @@ export default function Strategies () {
           ].map(([name, apy, risk]) => (
             <div key={name} className="flex items-center gap-4 py-1">
               <span className="text-white font-medium w-[140px]">{name}</span>
-              <span className="text-[#2563eb] w-[50px]">{apy}</span>
+              <span className="text-white w-[50px]">{apy}</span>
               <span className={`text-[11px] px-2 py-0.5 rounded ${
                 risk === 'Low' ? 'text-emerald-400 bg-emerald-400/10' :
                 risk === 'Med' ? 'text-amber-400 bg-amber-400/10' :

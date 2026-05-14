@@ -12,7 +12,7 @@ export default function HowItWorks () {
       >
         <h2 className="text-[40px] md:text-[60px] font-black tracking-[-0.04em] leading-[0.95]">
           <span className="text-white">The </span>
-          <span className="text-[#2563eb] italic">all-in-one</span>
+          <span className="text-white italic">all-in-one</span>
           <span className="text-white"> terminal<br />at your fingertips.</span>
         </h2>
       </motion.div>
@@ -57,7 +57,7 @@ function FeatureRow ({ title, points, terminal, reverse }: { title: string; poin
         <ul className="space-y-2.5">
           {points.map((p, i) => (
             <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#71717a]">
-              <span className="text-[#2563eb] mt-0.5">•</span>
+              <span className="text-white mt-0.5">•</span>
               {p}
             </li>
           ))}

@@ -13,7 +13,7 @@ export default function WhatIsKard () {
       >
         <h2 className="text-[40px] md:text-[60px] lg:text-[72px] font-black tracking-[-0.04em] leading-[0.95]">
           <span className="text-white">You describe.</span><br />
-          <span className="text-[#2563eb]">We execute.</span>
+          <span className="text-white">We execute.</span>
         </h2>
         <p className="mt-6 text-[16px] md:text-[18px] text-[#71717a] max-w-[500px] mx-auto leading-relaxed">
           Kard is an autonomous AI trading agent <span className="text-white font-medium">that actually works</span>.
@@ -33,7 +33,7 @@ export default function WhatIsKard () {
       >
         <h3 className="text-[36px] md:text-[52px] font-black tracking-[-0.03em] leading-[1.0]">
           <span className="text-white">The </span>
-          <span className="text-[#2563eb] italic">smart</span>
+          <span className="text-white italic">smart</span>
           <span className="text-white"><br />way to trade.</span>
         </h3>
       </motion.div>
@@ -73,7 +73,7 @@ function Step ({ num, title, desc, terminal }: { num: string; title: string; des
       className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-6 p-6 md:p-8 rounded-2xl border border-[#1a1a1a] bg-[#0a0a0a]"
     >
       <div className="flex flex-col justify-center">
-        <span className="text-[12px] font-mono font-bold text-[#2563eb] mb-2">Step {num}</span>
+        <span className="text-[12px] font-mono font-bold text-white mb-2">Step {num}</span>
         <h4 className="text-[20px] md:text-[24px] font-bold text-white">{title}</h4>
         <p className="mt-3 text-[14px] leading-relaxed text-[#71717a]">{desc}</p>
       </div>
