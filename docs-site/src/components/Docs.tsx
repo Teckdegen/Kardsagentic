@@ -481,11 +481,29 @@ function Callout ({ type, children }: { type: 'info' | 'warning' | 'tip'; childr
     warning: 'border-amber-500/30 bg-amber-500/5 text-amber-300',
     tip: 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300',
   }
-  const labels = { info: 'ℹ️', warning: '⚠️', tip: '💡' }
+  const icons = {
+    info: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M8 7v4M8 5h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    warning: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
+        <path d="M8 1.5L14.5 13H1.5L8 1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+        <path d="M8 6v3M8 11h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    tip: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
+        <path d="M6 14h4M8 1a5 5 0 0 0-3 9v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V10a5 5 0 0 0-3-9z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  }
   return (
-    <div className={`rounded-lg border p-4 text-[13px] leading-relaxed ${styles[type]}`}>
-      <span className="mr-2">{labels[type]}</span>
-      {children}
+    <div className={`flex items-start gap-3 rounded-lg border p-4 text-[13px] leading-relaxed ${styles[type]}`}>
+      {icons[type]}
+      <span>{children}</span>
     </div>
   )
 }
