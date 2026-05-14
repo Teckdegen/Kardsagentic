@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react'
 import { motion } from 'motion/react'
 import HlsVideo from './HlsVideo'
 
@@ -94,7 +95,7 @@ export default function Hero () {
             </div>
           </motion.div>
 
-          {/* Right — floating dots and protocol pills */}
+          {/* Right — interactive floating dots and protocol pills */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -102,31 +103,7 @@ export default function Hero () {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative h-[400px] hidden lg:block"
           >
-            {/* Scattered dots */}
-            <Dot x={10} y={8} color="white" />
-            <Dot x={85} y={5} color="white" />
-            <Dot x={45} y={12} color="blue" />
-            <Dot x={72} y={18} color="blue" />
-            <Dot x={20} y={25} color="blue" />
-            <Dot x={90} y={30} color="white" />
-            <Dot x={5} y={45} color="white" />
-            <Dot x={60} y={42} color="blue" />
-            <Dot x={35} y={55} color="white" />
-            <Dot x={80} y={55} color="blue" />
-            <Dot x={15} y={70} color="blue" />
-            <Dot x={50} y={72} color="white" />
-            <Dot x={92} y={68} color="blue" />
-            <Dot x={25} y={85} color="white" />
-            <Dot x={70} y={88} color="blue" />
-            <Dot x={42} y={92} color="blue" />
-
-            {/* Floating protocol pills */}
-            <Pill x={30} y={20} label="Aave" variant="white" profit="+$58" />
-            <Pill x={55} y={30} label="Uniswap" variant="white" profit="+$33" />
-            <Pill x={40} y={50} label="Lucid" variant="blue" />
-            <Pill x={65} y={60} label="Morpho" variant="small" />
-            <Pill x={25} y={70} label="Hyperliquid" variant="blue" />
-            <Pill x={55} y={78} label="Pendle" variant="small" />
+            <InteractiveField />
           </motion.div>
         </div>
       </section>
@@ -134,37 +111,86 @@ export default function Hero () {
   )
 }
 
-function Dot ({ x, y, color }: { x: number; y: number; color: 'white' | 'blue' }) {
-  return (
-    <div
-      className={`absolute w-3 h-2 rounded-full ${color === 'blue' ? 'bg-blue-500' : 'bg-white'} opacity-60`}
-      style={{ left: `${x}%`, top: `${y}%` }}
-    />
-  )
-}
+function InteractiveField () {
+  const [items, setItems] = useState([
+    { id: 'aave', x: 30, y: 18, label: 'Aave', variant: 'white' as const, profit: '+$58', detail: '5.8% APY on USDC · Arbitrum' },
+    { id: 'uniswap', x: 58, y: 28, label: 'Uniswap', variant: 'white' as const, profit: '+$33', detail: '12.3% fees · USDC/USDT pool' },
+    { id: 'lucid', x: 38, y: 48, label: 'Lucid', variant: 'blue' as const, detail: '7.2% APY · L-USDC on Kite AI' },
+    { id: 'morpho', x: 68, y: 58, label: 'Morpho', variant: 'small' as const, detail: '8.4% APY · Base · peer-to-peer' },
+    { id: 'hyperliquid', x: 25, y: 68, label: 'Hyperliquid', variant: 'blue' as const, detail: 'Perps · BTC/ETH/SOL · testnet' },
+    { id: 'pendle', x: 58, y: 78, label: 'Pendle', variant: 'small' as const, detail: '9.1% fixed yield · PT-USDC' },
+  ])
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [dragging, setDragging] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-function Pill ({ x, y, label, variant, profit }: { x: number; y: number; label: string; variant: 'white' | 'blue' | 'small'; profit?: string }) {
-  if (variant === 'small') {
-    return (
-      <div
-        className="absolute px-3 py-1.5 rounded-full bg-[#1a1a1a] border border-[#333] text-[11px] text-[#a1a1aa] font-medium"
-        style={{ left: `${x}%`, top: `${y}%` }}
-      >
-        {label}
-      </div>
-    )
+  const dots = [
+    { x: 10, y: 8, color: 'white' as const }, { x: 85, y: 5, color: 'white' as const },
+    { x: 45, y: 10, color: 'blue' as const }, { x: 75, y: 15, color: 'blue' as const },
+    { x: 18, y: 30, color: 'blue' as const }, { x: 92, y: 32, color: 'white' as const },
+    { x: 5, y: 45, color: 'white' as const }, { x: 82, y: 42, color: 'blue' as const },
+    { x: 12, y: 55, color: 'white' as const }, { x: 90, y: 55, color: 'blue' as const },
+    { x: 48, y: 90, color: 'blue' as const }, { x: 75, y: 88, color: 'white' as const },
+    { x: 30, y: 92, color: 'blue' as const }, { x: 8, y: 80, color: 'white' as const },
+  ]
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragging || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setItems(prev => prev.map(item =>
+      item.id === dragging ? { ...item, x: Math.max(5, Math.min(85, x)), y: Math.max(5, Math.min(90, y)) } : item
+    ))
   }
+
+  const handleMouseUp = () => setDragging(null)
+
   return (
     <div
-      className={`absolute rounded-full px-4 py-2 font-medium text-[13px] shadow-lg ${
-        variant === 'blue'
-          ? 'bg-blue-600 text-white'
-          : 'bg-[#f0ede8] text-[#1a1a1a]'
-      }`}
-      style={{ left: `${x}%`, top: `${y}%` }}
+      ref={containerRef}
+      className="absolute inset-0 cursor-default select-none"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
-      {profit && <span className="text-emerald-600 text-[11px] font-bold block -mb-0.5">{profit}</span>}
-      {label}
+      {/* Static dots */}
+      {dots.map((d, i) => (
+        <div
+          key={i}
+          className={`absolute w-3 h-2 rounded-full ${d.color === 'blue' ? 'bg-blue-500' : 'bg-white'} opacity-50`}
+          style={{ left: `${d.x}%`, top: `${d.y}%` }}
+        />
+      ))}
+
+      {/* Interactive pills */}
+      {items.map(item => (
+        <div
+          key={item.id}
+          className={`absolute transition-all duration-150 ${dragging === item.id ? 'scale-110 z-50' : 'z-10'} cursor-grab active:cursor-grabbing`}
+          style={{ left: `${item.x}%`, top: `${item.y}%`, transform: 'translate(-50%, -50%)' }}
+          onMouseDown={(e) => { e.preventDefault(); setDragging(item.id) }}
+          onClick={() => setExpanded(expanded === item.id ? null : item.id)}
+        >
+          {/* Pill */}
+          <div className={`rounded-full px-4 py-2 font-medium text-[13px] shadow-lg whitespace-nowrap transition-all ${
+            item.variant === 'blue' ? 'bg-blue-600 text-white hover:bg-blue-500' :
+            item.variant === 'small' ? 'bg-[#1a1a1a] border border-[#333] text-[#a1a1aa] hover:border-[#555]' :
+            'bg-[#f0ede8] text-[#1a1a1a] hover:bg-white'
+          }`}>
+            {item.profit && <span className="text-emerald-600 text-[11px] font-bold block -mb-0.5">{item.profit}</span>}
+            {item.label}
+          </div>
+
+          {/* Expanded detail */}
+          {expanded === item.id && (
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 rounded-lg bg-[#111] border border-[#333] text-[11px] text-[#a1a1aa] whitespace-nowrap shadow-xl z-50">
+              {item.detail}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
+
