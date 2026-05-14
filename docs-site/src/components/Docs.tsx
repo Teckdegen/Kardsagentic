@@ -7,7 +7,7 @@ export default function Docs () {
 
       <Section id="quickstart" title="Quick Start">
         <P>Get Kard running in under 5 minutes. You need <B>Node.js 22+</B> and one API key (or Ollama for free local models).</P>
-        <Code code={`npm install -g @kard/agent
+        <Code code={`npm install -g @kardagentic/agent
 kard init
 export ANTHROPIC_API_KEY=sk-ant-your-key
 kard claude "park my USDC at the highest yield"
@@ -18,9 +18,9 @@ kard run --strategy KITE_YIELD --interval 60s`} />
       <Section id="install" title="Installation">
         <H3>Option A — npm (recommended)</H3>
         <P>Install globally as a CLI tool. No cloning needed.</P>
-        <Code code={`npm install -g @kard/agent
+        <Code code={`npm install -g @kardagentic/agent
 kard help`} />
-        <Callout type="tip">Or use without installing: <code>npx @kard/agent help</code></Callout>
+        <Callout type="tip">Or use without installing: <code>npx @kardagentic/agent help</code></Callout>
         <H3>Option B — from source</H3>
         <P>Clone the repo if you want to modify the code or contribute.</P>
         <Code code={`git clone https://github.com/Teckdegen/Kardsagentic kard
@@ -31,8 +31,8 @@ npm link    # makes 'kard' available globally`} />
         <Code code={`kard help`} />
         <H3>Use as an SDK</H3>
         <P>Import into your own Node.js project:</P>
-        <Code code={`npm install @kard/agent`} />
-        <Code code={`import { createAgent, compileStrategy } from '@kard/agent'
+        <Code code={`npm install @kardagentic/agent`} />
+        <Code code={`import { createAgent, compileStrategy } from '@kardagentic/agent'
 
 // Compile a strategy from plain English
 const plan = await compileStrategy("park USDC at highest yield", {
@@ -391,7 +391,7 @@ node src/cli/index.js mcp`} />
   "mcpServers": {
     "kard": {
       "command": "npx",
-      "args": ["-y", "@kard/agent", "mcp"],
+      "args": ["-y", "@kardagentic/agent", "mcp"],
       "env": {
         "ANTHROPIC_API_KEY": "sk-ant-your-key",
         "LLM_PROVIDER": "anthropic"

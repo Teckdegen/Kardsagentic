@@ -1,5 +1,5 @@
 {
-  "name": "@kard/agent",
+  "name": "@kardagentic/agent",
   "version": "0.1.0",
   "description": "Self-hosted agentic-trading runtime for Kite. SDK + MCP + CLI.",
   "type": "module",
@@ -9,9 +9,15 @@
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "exports": {
-    ".": { "import": "./src/index.js" },
-    "./mcp": { "import": "./src/mcp-server.js" },
-    "./cli": { "import": "./src/cli/index.js" }
+    ".": {
+      "import": "./src/index.js"
+    },
+    "./mcp": {
+      "import": "./src/mcp-server.js"
+    },
+    "./cli": {
+      "import": "./src/cli/index.js"
+    }
   },
   "bin": {
     "kard-agent": "src/cli/index.js",
