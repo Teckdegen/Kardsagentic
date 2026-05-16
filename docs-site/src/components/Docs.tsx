@@ -15,6 +15,28 @@ kard run --strategy KITE_YIELD --interval 60s`} />
         <Callout type="info">That's it. The agent is now scanning 8 protocols across 5 chains every 60 seconds, executing the best yield opportunity, and attesting every action on Kite AI.</Callout>
       </Section>
 
+      <Section id="demo" title="Demo">
+        <P>Run a complete end-to-end demonstration in under 60 seconds. Perfect for seeing everything Kard can do without any setup beyond an LLM key.</P>
+        <Code code={`kard demo`} />
+        <P>The demo will:</P>
+        <P>1. Create/unlock an agent wallet</P>
+        <P>2. Connect to Kite AI + Arbitrum chains</P>
+        <P>3. Compile a strategy from natural language using AI</P>
+        <P>4. Scan DeFi protocols for live yield opportunities</P>
+        <P>5. Simulate execution with risk + policy checks</P>
+        <P>6. Attest the action on Kite AI (verifiable on-chain)</P>
+        <P>7. Query the agent's on-chain reputation score</P>
+        <Code code={`# Run with real testnet execution
+kard demo --execute
+
+# Use a specific LLM provider
+kard demo --provider deepseek
+
+# Use free local model
+kard demo --provider ollama`} />
+        <Callout type="tip">Judges: run <code>kard demo</code> to see the full system in action. No testnet funds required for the default dry-run mode.</Callout>
+      </Section>
+
       <Section id="install" title="Installation">
         <H3>Option A — npm (recommended)</H3>
         <P>Install globally as a CLI tool. No cloning needed.</P>
@@ -158,6 +180,38 @@ kard strategy save
 kard strategy publish`} />
       </Section>
 
+      <Section id="strategy-marketplace" title="Strategy Marketplace">
+        <P>A trust-minimized marketplace where strategy performance claims are cryptographically verifiable on Kite AI. Authors attest their backtest results on-chain — buyers can verify before installing.</P>
+        <H3>Publish with attestation proof</H3>
+        <Code code={`# Publish a strategy with on-chain backtest proof
+kard strategy publish KITE_YIELD --attest --from 2024-01-01 --to 2024-06-01
+
+# The backtest runs, results are attested on Kite AI,
+# and the strategy + proof are pushed to the marketplace`} />
+        <H3>Browse proven strategies</H3>
+        <Code code={`# Browse marketplace (shows attestation status)
+kard strategy browse
+
+# Search for specific strategies
+kard strategy browse "yield"
+
+# Output:
+#   ✓ proven  KITE_YIELD           Park USDC at highest yield (12.4% return)
+#   ✓ proven  DELTA_NEUTRAL        Market-neutral via spot+perp (8.2% return)
+#     unproven RISKY_DEGEN         Leverage everything 10x`} />
+        <H3>Verify a strategy's proof</H3>
+        <Code code={`# Verify on-chain — fetches the attestation tx from Kite AI
+kard strategy verify KITE_YIELD
+
+# Output:
+#   ✓ Strategy attestation VERIFIED
+#   Tx:      0x4a7f...
+#   Agent:   0x9f3e...
+#   Block:   1234567
+#   Explorer: https://kitescan.ai/tx/0x4a7f...`} />
+        <Callout type="info">Attestation proofs are permanent and verifiable by anyone. The backtest was actually run by the author's agent and recorded on Kite AI's chain (2366).</Callout>
+      </Section>
+
       <Section id="policy" title="Safety & Policy">
         <P>Three independent enforcement layers: LLM prompt, action filter, and execute() veto. Configure once, agent obeys forever.</P>
         <Code code={`# View current policy
@@ -254,6 +308,48 @@ kard attest list
 kard attest verify 0xYourTxHashHere`} />
         <P>Each attestation contains: agent ID, action type, reasoning, confidence score, risk score, policy checks, tx hash, timestamp, and execution result.</P>
         <Callout type="info">Two modes: self-attestation (zero-cost tx with calldata) or contract attestation (KardAttestor.sol with indexed events).</Callout>
+      </Section>
+
+      <Section id="reputation" title="Reputation">
+        <P>On-chain reputation derived from your attestation history on Kite AI. Every attested action contributes to a public, verifiable trust score. Higher reputation = more trusted agent.</P>
+        <H3>Check your score</H3>
+        <Code code={`kard reputation`} />
+        <P>Example output:</P>
+        <Code code={`🃏 Kard Agent Reputation
+
+  Address:        0x9f3e...4a7f
+  Score:          247
+  Tier:           gold
+  Chain:          Kite AI (2366)
+
+  Breakdown:
+    Base (attestations × 10):   180
+    Profit bonus:               45
+    Failure penalty:             -6
+    Streak bonus:               16
+    Age bonus:                  12
+
+  Stats:
+    Total attestations:  18
+    Profitable:          9
+    Failed:              2
+    Success rate:        81.8%
+    Longest streak:      8
+    Active since:        24 days`} />
+        <H3>Check any agent</H3>
+        <Code code={`kard reputation show 0xSomeAgentAddress`} />
+        <H3>Leaderboard</H3>
+        <Code code={`kard reputation leaderboard 0xAgent1 0xAgent2 0xAgent3`} />
+        <H3>Tier system</H3>
+        <Table headers={['Tier', 'Score', 'Meaning']} rows={[
+          ['Legendary', '1000+', 'Proven track record, hundreds of successful attestations'],
+          ['Diamond', '500-999', 'Highly active, consistently profitable'],
+          ['Gold', '200-499', 'Established agent with solid history'],
+          ['Silver', '100-199', 'Active agent building reputation'],
+          ['Bronze', '25-99', 'New but showing activity'],
+          ['Newcomer', '1-24', 'Just getting started'],
+        ]} />
+        <Callout type="info">Reputation is fully on-chain and verifiable. Anyone can query an agent's attestation history on Kite AI and independently compute the score.</Callout>
       </Section>
 
       <Section id="fleet" title="Multi-Agent Fleet">
@@ -484,6 +580,8 @@ AVAX_RPC_URL=https://api.avax.network/ext/bc/C/rpc`} />
       <Section id="all-commands" title="All Commands">
         <Code code={`kard                              Interactive REPL
 kard help                         Show all commands
+kard demo                         Full end-to-end demo (~30s)
+kard demo --execute               Demo with real testnet execution
 kard <provider> "<text>"          Compile strategy (dry-run)
 kard <provider> "<text>" --execute Execute strategy
 kard run                          Autonomous loop (default strategy)
@@ -501,6 +599,9 @@ kard daemon --report <interval>   Progress reports
 kard opportunities                Live ranked yield sources
 kard gas                          Gas balances on all chains
 kard gas --guide                  Funding instructions
+kard reputation                   Your agent's on-chain reputation
+kard reputation show <addr>       Check any agent's score
+kard reputation leaderboard       Rank multiple agents
 kard skill list                   List installed skills
 kard skill add <file>             Install skill from file
 kard skill remove <name>          Remove a skill
@@ -509,7 +610,9 @@ kard skill search "<query>"       Search marketplace
 kard skill install <name>         Install from marketplace
 kard strategy list                List all strategies
 kard strategy save                Save current strategy
-kard strategy publish             Publish to marketplace
+kard strategy publish --attest    Publish with on-chain proof
+kard strategy verify <name>       Verify attestation proof
+kard strategy browse [query]      Browse proven strategies
 kard strategy search "<query>"    Search strategies
 kard config show                  View current policy
 kard config allow <type> <vals>   Allow chains/assets/actions

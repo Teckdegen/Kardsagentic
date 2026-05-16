@@ -118,6 +118,24 @@ KITE ATTESTATION
   npx @kard/agent attest list                last 20 attestations
   npx @kard/agent attest verify <txHash>     decode an on-chain attestation
 
+REPUTATION (on-chain trust score from attestation history)
+  npx @kard/agent reputation                 your agent's reputation score
+  npx @kard/agent reputation show <addr>     check any agent's score
+  npx @kard/agent reputation leaderboard <addr1> <addr2> ...
+
+STRATEGY MARKETPLACE (with attestation proofs)
+  npx @kard/agent strategy list              all installed strategies
+  npx @kard/agent strategy publish <name> --attest   publish with on-chain proof
+  npx @kard/agent strategy verify <name>     verify attestation proof on Kite
+  npx @kard/agent strategy browse [query]    browse proven strategies
+  npx @kard/agent strategy install <ref>     install from marketplace
+  npx @kard/agent strategy search <query>    search registry
+
+DEMO (end-to-end showcase for judges)
+  npx @kard/agent demo                       full demo in ~30 seconds
+  npx @kard/agent demo --execute             demo with real testnet execution
+  npx @kard/agent demo --provider deepseek   use a specific LLM
+
 YIELD
   npx @kard/agent opportunities              live ranked yield (Aave / Lucid / DeFiLlama / funding)
 
@@ -571,30 +589,6 @@ async function cmdBacktest (provider, prompt, flags) {
   }
 }
 
-async function cmdStrategy (sub, rest, flags) {
-  const { strategyRegistry } = await import('../strategies/library.js')
-  const reg = strategyRegistry()
-  switch (sub) {
-    case 'list': case undefined:
-      for (const s of reg.list()) console.log(`${s.source.padEnd(8)} ${s.name.padEnd(28)} ${s.description || ''}`)
-      return
-    case 'install':
-      console.log(JSON.stringify(await reg.install(rest[0]), null, 2)); return
-    case 'publish':
-      console.log(JSON.stringify(await reg.publish(rest[0]), null, 2)); return
-    case 'search':
-      console.log(JSON.stringify(await reg.search(rest[0] || ''), null, 2)); return
-    case 'remove':
-      reg.remove(rest[0]); console.log(`✓ removed ${rest[0]}`); return
-    case 'save': {
-      const name = rest[0]
-      const config = JSON.parse(rest[1] || '{}')
-      console.log(JSON.stringify(reg.saveAs(name, config), null, 2)); return
-    }
-    default: console.error('usage: kard strategy <list|install|publish|search|remove|save>'); process.exit(2)
-  }
-}
-
 async function cmdFleet (sub, rest, flags) {
   const { Fleet, loadFleetConfig } = await import('../agent/fleet.js')
   switch (sub) {
@@ -895,6 +889,208 @@ async function cmdKill (sub) {
   else                    { console.error('usage: kard kill <on|off>'); process.exit(2) }
 }
 
+// ─────────── demo ───────────
+
+async function cmdDemo (flags) {
+  const { runDemo } = await import('./demo.js')
+  await runDemo(flags)
+}
+
+// ─────────── reputation ───────────
+
+async function cmdReputation (sub, rest, flags) {
+  const { ChainContext } = await import('../chain-context.js')
+  const { KiteReputation } = await import('../kite/reputation.js')
+  const { defaultWalletManager } = await import('../wallet/manager.js')
+
+  const wm = defaultWalletManager()
+  const acct = await wm.resolve({ interactive: true })
+  if (acct.privateKey) process.env.PRIVATE_KEY = acct.privateKey
+  const ctx = new ChainContext()
+  const rep = new KiteReputation({ chainContext: ctx, contractAddress: process.env.KARD_ATTESTOR_ADDR })
+
+  switch (sub) {
+    case 'leaderboard': {
+      const addresses = rest.length > 0 ? rest : [acct.address]
+      const board = await rep.leaderboard(addresses)
+      console.log('\n🏆 Kard Agent Leaderboard (Kite AI)\n')
+      for (const entry of board) {
+        console.log(`  #${entry.rank}  ${entry.address.slice(0, 10)}…  score: ${entry.score}  (${entry.tier})`)
+      }
+      console.log('')
+      return
+    }
+    case undefined: case 'show': {
+      const address = rest[0] || acct.address
+      const score = await rep.getScore(address)
+      console.log('\n🃏 Kard Agent Reputation\n')
+      console.log(`  Address:        ${score.address}`)
+      console.log(`  Score:          ${score.score}`)
+      console.log(`  Tier:           ${score.tier}`)
+      console.log(`  Chain:          ${score.chain}`)
+      console.log('')
+      console.log('  Breakdown:')
+      console.log(`    Base (attestations × 10):   ${score.breakdown.base}`)
+      console.log(`    Profit bonus:               ${score.breakdown.bonus}`)
+      console.log(`    Failure penalty:             ${score.breakdown.penalty}`)
+      console.log(`    Streak bonus:               ${score.breakdown.streak}`)
+      console.log(`    Age bonus:                  ${score.breakdown.ageBonus}`)
+      console.log('')
+      console.log('  Stats:')
+      console.log(`    Total attestations:  ${score.stats.totalAttestations}`)
+      console.log(`    Profitable:          ${score.stats.profitable}`)
+      console.log(`    Failed:              ${score.stats.failed}`)
+      console.log(`    Success rate:        ${score.stats.successRate}`)
+      console.log(`    Longest streak:      ${score.stats.longestStreak}`)
+      console.log(`    Active since:        ${score.stats.activeSinceDays} days`)
+      console.log('')
+      console.log(`  Verify: https://kitescan.ai/address/${score.address}`)
+      console.log('')
+      return
+    }
+    default:
+      console.error('usage: kard reputation [show|leaderboard] [address...]')
+      process.exit(2)
+  }
+}
+
+// ─────────── strategy marketplace (with attestation proofs) ───────────
+
+async function cmdStrategyMarketplace (sub, rest, flags) {
+  const { strategyRegistry } = await import('../strategies/library.js')
+  const reg = strategyRegistry()
+
+  // For commands that need attestation
+  if (sub === 'publish' && flags.attest) {
+    const { ChainContext } = await import('../chain-context.js')
+    const { KiteAttestor } = await import('../kite/attestation.js')
+    const { StrategyMarketplace } = await import('../strategies/marketplace.js')
+    const { Backtester } = await import('../agent/backtest.js')
+    const { defaultWalletManager } = await import('../wallet/manager.js')
+
+    const wm = defaultWalletManager()
+    const acct = await wm.resolve({ interactive: true })
+    if (acct.privateKey) process.env.PRIVATE_KEY = acct.privateKey
+    const ctx = new ChainContext()
+    const attestor = new KiteAttestor({ chainContext: ctx })
+    const marketplace = new StrategyMarketplace({ attestor, registry: reg })
+
+    const strategyName = rest[0]
+    if (!strategyName) {
+      console.error('usage: kard strategy publish <name> --attest [--from DATE --to DATE]')
+      process.exit(2)
+    }
+
+    const strategy = reg.get(strategyName)
+    if (!strategy) {
+      console.error(`strategy "${strategyName}" not found. Run: kard strategy list`)
+      process.exit(2)
+    }
+
+    // Run backtest for proof
+    console.error(`[kard] running backtest for attestation proof...`)
+    const bt = new Backtester({ startingEquity: parseFloat(flags.equity || '10000') })
+    const backtestResult = await bt.run({
+      strategyText: strategy.description || strategyName,
+      provider: flags.provider || 'anthropic',
+      from: flags.from || new Date(Date.now() - 90 * 86400_000).toISOString(),
+      to: flags.to || new Date().toISOString()
+    })
+
+    console.error(`[kard] attesting backtest results on Kite AI...`)
+    const result = await marketplace.publishWithProof(
+      { name: strategyName, ...strategy },
+      backtestResult,
+      { address: acct.address }
+    )
+
+    console.log('\n✓ Strategy published with attestation proof\n')
+    console.log(`  Name:        ${result.name}`)
+    console.log(`  Attestation: ${result.attestation.txHash}`)
+    console.log(`  Explorer:    ${result.attestation.explorerUrl}`)
+    console.log(`  Block:       ${result.attestation.block}`)
+    console.log(`  Backtest:    ${JSON.stringify(result.backtest)}`)
+    console.log(`  Local:       ${result.localPath}`)
+    console.log('')
+    console.log('  Anyone can verify: kard strategy verify ' + result.name)
+    console.log('')
+    return
+  }
+
+  if (sub === 'verify') {
+    const { ChainContext } = await import('../chain-context.js')
+    const { KiteAttestor } = await import('../kite/attestation.js')
+    const { StrategyMarketplace } = await import('../strategies/marketplace.js')
+    const { defaultWalletManager } = await import('../wallet/manager.js')
+
+    const wm = defaultWalletManager()
+    const acct = await wm.resolve({ interactive: true })
+    if (acct.privateKey) process.env.PRIVATE_KEY = acct.privateKey
+    const ctx = new ChainContext()
+    const attestor = new KiteAttestor({ chainContext: ctx })
+    const marketplace = new StrategyMarketplace({ attestor, registry: reg })
+
+    const target = rest[0]
+    if (!target) {
+      console.error('usage: kard strategy verify <name-or-txHash>')
+      process.exit(2)
+    }
+
+    const result = await marketplace.verify(target)
+    if (result.verified) {
+      console.log('\n✓ Strategy attestation VERIFIED\n')
+      console.log(`  Tx:      ${result.attestation.txHash}`)
+      console.log(`  Agent:   ${result.attestation.agent}`)
+      console.log(`  Block:   ${result.attestation.block}`)
+      console.log(`  Mode:    ${result.attestation.mode}`)
+      console.log(`  Explorer: ${result.attestation.explorerUrl}`)
+      if (result.backtest) {
+        console.log(`  Backtest: ${JSON.stringify(result.backtest)}`)
+      }
+    } else {
+      console.log(`\n✗ Verification failed: ${result.reason}`)
+    }
+    console.log('')
+    return
+  }
+
+  if (sub === 'browse') {
+    const { StrategyMarketplace } = await import('../strategies/marketplace.js')
+    const marketplace = new StrategyMarketplace({ registry: reg })
+    const results = await marketplace.browse(rest[0] || '')
+    console.log('\n📦 Strategy Marketplace\n')
+    if (!results.length) { console.log('  (no strategies found)'); return }
+    for (const s of results) {
+      const proof = s.proof?.verified ? '✓ proven' : '  unproven'
+      const backtest = s.proof?.backtest ? ` (${(s.proof.backtest.totalReturn * 100).toFixed(1)}% return)` : ''
+      console.log(`  ${proof} ${(s.name || '').padEnd(20)} ${(s.description || '').slice(0, 40)}${backtest}`)
+    }
+    console.log('')
+    return
+  }
+
+  // Fall through to original strategy command
+  switch (sub) {
+    case 'list': case undefined:
+      for (const s of reg.list()) console.log(`${s.source.padEnd(8)} ${s.name.padEnd(28)} ${s.description || ''}`)
+      return
+    case 'install':
+      console.log(JSON.stringify(await reg.install(rest[0]), null, 2)); return
+    case 'publish':
+      console.log(JSON.stringify(await reg.publish(rest[0]), null, 2)); return
+    case 'search':
+      console.log(JSON.stringify(await reg.search(rest[0] || ''), null, 2)); return
+    case 'remove':
+      reg.remove(rest[0]); console.log(`✓ removed ${rest[0]}`); return
+    case 'save': {
+      const name = rest[0]
+      const config = JSON.parse(rest[1] || '{}')
+      console.log(JSON.stringify(reg.saveAs(name, config), null, 2)); return
+    }
+    default: console.error('usage: kard strategy <list|install|publish|search|remove|save|verify|browse>'); process.exit(2)
+  }
+}
+
 async function main () {
   if (args.length === 0) { return cmdRepl() }
   if (['help', '--help', '-h'].includes(args[0])) return help()
@@ -903,6 +1099,8 @@ async function main () {
 
   switch (cmd) {
     case 'init':           return cmdInit()
+    case 'demo':           return cmdDemo(flags)
+    case 'reputation':     return cmdReputation(positional[0], positional.slice(1), flags)
     case 'wallet':         return cmdWallet(positional[0], positional.slice(1), flags)
     case 'skill':          return cmdSkill(positional[0], positional.slice(1), flags)
     case 'goal':           return cmdGoal(positional.join(' '), flags)
@@ -917,7 +1115,7 @@ async function main () {
     case 'opportunities':  return cmdOpportunities(flags)
     case 'repl':           return cmdRepl()
     case 'backtest':       return cmdBacktest(positional[0], positional.slice(1).join(' '), flags)
-    case 'strategy':       return cmdStrategy(positional[0], positional.slice(1), flags)
+    case 'strategy':       return cmdStrategyMarketplace(positional[0], positional.slice(1), flags)
     case 'fleet':          return cmdFleet(positional[0], positional.slice(1), flags)
     case 'simulate':       return cmdSimulate(positional[0], flags)
     case 'kill':           return cmdKill(positional[0])

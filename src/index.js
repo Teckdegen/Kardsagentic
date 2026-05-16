@@ -34,6 +34,7 @@ export { KitePassport, createPassportFromEnv } from './wallet/passport.js'
 
 // ─── Kite settlement / attestation ───
 export { KiteAttestor } from './kite/attestation.js'
+export { KiteReputation } from './kite/reputation.js'
 
 // ─── Yield discovery ───
 export { YieldAggregator } from './agent/yield-aggregator.js'
@@ -51,6 +52,7 @@ export { MevSubmitter } from './agent/mev.js'
 
 // ─── Strategy library + marketplace ───
 export { StrategyRegistry, strategyRegistry } from './strategies/library.js'
+export { StrategyMarketplace } from './strategies/marketplace.js'
 export { SkillMarketplace } from './skills/marketplace.js'
 
 // ─── Backtest ───
