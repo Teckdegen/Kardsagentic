@@ -42,7 +42,7 @@ export default function Hero () {
             transition={{ duration: 0.6 }}
             className="text-[48px] md:text-[72px] lg:text-[88px] font-black tracking-[-0.04em] leading-[0.9] italic"
           >
-            <span className="text-white">The most powerful way to run AI agents.</span>
+            <span className="text-white">The trading runtime for AI agents.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
