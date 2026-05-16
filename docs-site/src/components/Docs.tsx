@@ -50,16 +50,16 @@ agent.start(60_000) // check every 60s`} />
       <Section id="wallet" title="Wallet Setup">
         <P>Kard creates an encrypted keystore at <code>~/.kard/wallet.json</code>. Your private key never leaves your machine.</P>
         <Code code={`# Create a new wallet
-node src/cli/index.js init
+kard init
 
 # View your address (send funds here)
-node src/cli/index.js wallet address
+kard wallet address
 
 # List all wallets
-node src/cli/index.js wallet list
+kard wallet list
 
 # Import an existing private key
-node src/cli/index.js wallet import`} />
+kard wallet import`} />
         <Callout type="warning">Write down your seed phrase when it appears. It's shown ONCE and cannot be recovered.</Callout>
         <P>Alternatively, use an existing key via environment variable:</P>
         <Code code={`export PRIVATE_KEY=0xYourPrivateKeyHere
@@ -86,9 +86,9 @@ export LLM_PROVIDER=anthropic
 ollama pull llama3.1
 export LLM_PROVIDER=ollama`} />
         <P>Test your LLM connection:</P>
-        <Code code={`node src/cli/index.js claude "say hello in 5 words"
-node src/cli/index.js deepseek "what is 2+2"
-node src/cli/index.js ollama "hello"`} />
+        <Code code={`kard claude "say hello in 5 words"
+kard deepseek "what is 2+2"
+kard ollama "hello"`} />
       </Section>
 
       <Section id="funding" title="Funding (Testnet)">
@@ -101,7 +101,7 @@ node src/cli/index.js ollama "hello"`} />
         ]} />
         <Callout type="warning">KITE on Kite AI is critical — without it, attestations will fail. This cannot be auto-bridged.</Callout>
         <P>Verify your funding:</P>
-        <Code code={`node src/cli/index.js gas`} />
+        <Code code={`kard gas`} />
         <P>Expected output:</P>
         <Code code={`Arbitrum Sepolia   ETH  0.020000  ✓ OK
 Base Sepolia       ETH  0.020000  ✓ OK
@@ -113,21 +113,21 @@ Kite AI            KITE 1.000000  ✓ OK
 
       <Section id="first-run" title="First Run">
         <H3>1. Compile a strategy (dry-run, no execution)</H3>
-        <Code code={`node src/cli/index.js claude "park USDC at the highest sustainable yield"
-node src/cli/index.js deepseek "long ETH if RSI drops below 30, risk 2%"
-node src/cli/index.js gpt "hedge my BTC exposure"`} />
+        <Code code={`kard claude "park USDC at the highest sustainable yield"
+kard deepseek "long ETH if RSI drops below 30, risk 2%"
+kard gpt "hedge my BTC exposure"`} />
         <H3>2. See live yield opportunities</H3>
-        <Code code={`node src/cli/index.js opportunities`} />
+        <Code code={`kard opportunities`} />
         <H3>3. Execute a strategy</H3>
-        <Code code={`node src/cli/index.js claude "park USDC at highest yield" --execute`} />
+        <Code code={`kard claude "park USDC at highest yield" --execute`} />
         <H3>4. Run autonomous loop</H3>
-        <Code code={`node src/cli/index.js run --strategy KITE_YIELD --interval 60s`} />
+        <Code code={`kard run --strategy KITE_YIELD --interval 60s`} />
         <H3>5. Goal mode — AI figures it out</H3>
-        <Code code={`node src/cli/index.js goal "grow my portfolio 5% in 2 weeks"
-node src/cli/index.js goal "maximize yield, no perps"
-node src/cli/index.js goal "just trade"`} />
+        <Code code={`kard goal "grow my portfolio 5% in 2 weeks"
+kard goal "maximize yield, no perps"
+kard goal "just trade"`} />
         <H3>6. Interactive REPL</H3>
-        <Code code={`node src/cli/index.js`} />
+        <Code code={`kard`} />
         <P>Opens a live chat session with your agent. Type strategies, ask questions, give commands.</P>
       </Section>
 
@@ -143,82 +143,82 @@ node src/cli/index.js goal "just trade"`} />
           ['FULL_STACK', 'Medium', '~18%', 'All protocols combined'],
           ['PERPS_TRADER', 'High', '~20%', 'Hyperliquid + GMX perps'],
         ]} />
-        <Code code={`node src/cli/index.js run --strategy KITE_YIELD --interval 60s
-node src/cli/index.js run --strategy PERPS_TRADER --interval 30s
-node src/cli/index.js run --strategy FULL_STACK --interval 5m
+        <Code code={`kard run --strategy KITE_YIELD --interval 60s
+kard run --strategy PERPS_TRADER --interval 30s
+kard run --strategy FULL_STACK --interval 5m
 
 # Override LLM provider for this run
-node src/cli/index.js run --strategy KITE_YIELD --provider deepseek
+kard run --strategy KITE_YIELD --provider deepseek
 
 # List all strategies
-node src/cli/index.js strategy list
+kard strategy list
 
 # Save/publish custom strategies
-node src/cli/index.js strategy save
-node src/cli/index.js strategy publish`} />
+kard strategy save
+kard strategy publish`} />
       </Section>
 
       <Section id="policy" title="Safety & Policy">
         <P>Three independent enforcement layers: LLM prompt, action filter, and execute() veto. Configure once, agent obeys forever.</P>
         <Code code={`# View current policy
-node src/cli/index.js config show
+kard config show
 
 # ─── ACTIONS ───
-node src/cli/index.js config deny actions perps_open perps_close
-node src/cli/index.js config deny actions bridge
-node src/cli/index.js config allow actions lending_supply swap
+kard config deny actions perps_open perps_close
+kard config deny actions bridge
+kard config allow actions lending_supply swap
 
 # ─── CHAINS ───
-node src/cli/index.js config allow chains kiteai arbitrum
-node src/cli/index.js config deny chains avalanche polygon ethereum
+kard config allow chains kiteai arbitrum
+kard config deny chains avalanche polygon ethereum
 
 # ─── VENUES ───
-node src/cli/index.js config deny venues hyperliquid gmx
+kard config deny venues hyperliquid gmx
 
 # ─── ASSETS ───
-node src/cli/index.js config allow assets USDC USDT WETH
+kard config allow assets USDC USDT WETH
 
 # ─── UNDO ───
-node src/cli/index.js config undeny chains avalanche
-node src/cli/index.js config reset
+kard config undeny chains avalanche
+kard config reset
 
 # ─── DISCOVER OPTIONS ───
-node src/cli/index.js config venues
-node src/cli/index.js config actions
+kard config venues
+kard config actions
 
 # ─── EMERGENCY STOP ───
-node src/cli/index.js kill on     # stops ALL agents immediately
-node src/cli/index.js kill off    # resume`} />
+kard kill on     # stops ALL agents immediately
+kard kill off    # resume`} />
         <Callout type="warning"><code>kard kill on</code> is instant and absolute. Use it if anything looks wrong.</Callout>
       </Section>
 
       <Section id="risk-limits" title="Risk Limits">
         <P>Set your own maximum drawdown, leverage caps, position sizes, and more. These are hard limits — the agent cannot exceed them regardless of what the AI suggests.</P>
         <H3>View current limits</H3>
-        <Code code={`node src/cli/index.js risk show`} />
+        <Code code={`kard risk show`} />
         <H3>Set custom limits</H3>
         <Code code={`# Max daily drawdown before agent halts (default: 8%)
-node src/cli/index.js risk set max_drawdown 5
+kard risk set max_drawdown 5
 
 # Max gross leverage (default: 3x)
-node src/cli/index.js risk set max_leverage 2
+kard risk set max_leverage 2
 
 # Absolute leverage cap — never exceeded (default: 5x)
-node src/cli/index.js risk set hard_max_leverage 3
+kard risk set hard_max_leverage 3
 
 # Max % of equity in any single market (default: 20%)
-node src/cli/index.js risk set max_per_market 15
+kard risk set max_per_market 15
 
 # Max % in correlated assets (default: 50%)
-node src/cli/index.js risk set max_bucket 40
+kard risk set max_bucket 40
 
 # Max single position in USD (default: $1,000,000)
-node src/cli/index.js risk set max_position_usd 10000
+kard risk set max_position_usd 10000
 
 # Skip trades below this USD value (default: $5)
-node src/cli/index.js risk set min_trade_usd 10`} />
+kard risk set min_trade_usd 10`} />
         <H3>Reset to defaults</H3>
-        <Code code={`node src/cli/index.js risk reset`} />
+        <Code code={`kard risk reset`} />
         <H3>Set via environment variables</H3>
         <Code code={`# Add to .env:
 KARD_MAX_DRAWDOWN=5
@@ -233,7 +233,7 @@ KARD_MIN_TRADE_USD=10`} />
       </Section>
 
       <Section id="yields" title="Yield Opportunities">
-        <Code code={`node src/cli/index.js opportunities`} />
+        <Code code={`kard opportunities`} />
         <P>Returns live ranked yields across all connected protocols:</P>
         <Code code={`📊 Live Yield Opportunities
 
@@ -248,17 +248,17 @@ KARD_MIN_TRADE_USD=10`} />
       <Section id="attestations" title="Attestations">
         <P>Every action Kard takes creates a verifiable record on Kite AI (chainId 2366).</P>
         <Code code={`# List all attestations
-node src/cli/index.js attest list
+kard attest list
 
 # Verify a specific attestation
-node src/cli/index.js attest verify 0xYourTxHashHere`} />
+kard attest verify 0xYourTxHashHere`} />
         <P>Each attestation contains: agent ID, action type, reasoning, confidence score, risk score, policy checks, tx hash, timestamp, and execution result.</P>
         <Callout type="info">Two modes: self-attestation (zero-cost tx with calldata) or contract attestation (KardAttestor.sol with indexed events).</Callout>
       </Section>
 
       <Section id="fleet" title="Multi-Agent Fleet">
         <P>Run up to 100 agents simultaneously. Each with a different LLM, strategy, and risk profile. All share the risk engine.</P>
-        <Code code={`node src/cli/index.js fleet run examples/fleet.yml --interval 60s`} />
+        <Code code={`kard fleet run examples/fleet.yml --interval 60s`} />
         <P>Example <code>fleet.yml</code>:</P>
         <Code code={`provider: anthropic
 
@@ -290,16 +290,16 @@ agents:
 export TELEGRAM_BOT_TOKEN=<token>
 export TELEGRAM_ALLOW_USERS=<your-user-id>
 export KARD_ALLOW_EXECUTE=1
-node src/cli/index.js chat telegram
+kard chat telegram
 
 # Discord
 export DISCORD_BOT_TOKEN=<token>
-node src/cli/index.js chat discord
+kard chat discord
 
 # Slack
 export SLACK_BOT_TOKEN=<token>
 export SLACK_APP_TOKEN=<token>
-node src/cli/index.js chat slack`} />
+kard chat slack`} />
         <P>Example Telegram conversation:</P>
         <Code code={`You: "how's my portfolio?"
 Bot: "You're at $1,247. $800 in Aave at 5.8%, $200 idle."
@@ -322,70 +322,70 @@ export HYPERLIQUID_API_WALLET=0x<api-wallet-private-key>
 export HYPERLIQUID_USER_ADDRESS=0x<your-main-address>
 
 # Trade via natural language
-node src/cli/index.js claude "long ETH 3x if funding is negative" --execute
-node src/cli/index.js deepseek "short BTC 2x, stop 5%, TP 10%" --execute
+kard claude "long ETH 3x if funding is negative" --execute
+kard deepseek "short BTC 2x, stop 5%, TP 10%" --execute
 
 # Autonomous perps strategy
-node src/cli/index.js run --strategy PERPS_TRADER --interval 30s
+kard run --strategy PERPS_TRADER --interval 30s
 
 # Delta neutral (market-neutral yield)
-node src/cli/index.js run --strategy DELTA_NEUTRAL --interval 60s`} />
+kard run --strategy DELTA_NEUTRAL --interval 60s`} />
         <Callout type="warning">Risk per trade is capped at 2% of equity. Max leverage: 5x. These are hard limits enforced by the risk engine.</Callout>
       </Section>
 
       <Section id="skills" title="Skills System">
         <P>Skills are markdown files that teach Kard new capabilities. Drop one in a folder and the agent learns it on next reload.</P>
         <Code code={`# List installed skills
-node src/cli/index.js skill list
+kard skill list
 
 # Add a skill from file
-node src/cli/index.js skill add ./my-skill.md
+kard skill add ./my-skill.md
 
 # Run a skill directly
-node src/cli/index.js skill run coingecko-price get_price ids=bitcoin,ethereum
-node src/cli/index.js skill run defillama-yields pools
-node src/cli/index.js skill run hyperliquid-funding
-node src/cli/index.js skill run fear-greed
-node src/cli/index.js skill run cryptopanic-news
+kard skill run coingecko-price get_price ids=bitcoin,ethereum
+kard skill run defillama-yields pools
+kard skill run hyperliquid-funding
+kard skill run fear-greed
+kard skill run cryptopanic-news
 
 # Search marketplace
-node src/cli/index.js skill search "yield"
+kard skill search "yield"
 
 # Install from marketplace
-node src/cli/index.js skill install defillama-yields
+kard skill install defillama-yields
 
 # Remove
-node src/cli/index.js skill remove my-skill`} />
+kard skill remove my-skill`} />
         <P>Built-in skills: coingecko-price, defillama-yields, hyperliquid-funding, fear-greed, cryptopanic-news, pyth-prices, coinglass-funding, etherscan-history.</P>
       </Section>
 
       <Section id="backtest" title="Backtesting">
-        <Code code={`node src/cli/index.js backtest claude "long ETH if RSI < 30" --from 2024-01-01 --to 2024-06-01
-node src/cli/index.js backtest deepseek "park stables at best yield" --from 2024-03-01 --to 2024-09-01`} />
+        <Code code={`kard backtest claude "long ETH if RSI < 30" --from 2024-01-01 --to 2024-06-01
+kard backtest deepseek "park stables at best yield" --from 2024-03-01 --to 2024-09-01`} />
       </Section>
 
       <Section id="passport" title="Wallet & Passport">
         <H3>Kite Passport (optional)</H3>
-        <Code code={`node src/cli/index.js passport signup you@email.com
-node src/cli/index.js passport verify <8-char-code>
-node src/cli/index.js passport address
-node src/cli/index.js passport status
-node src/cli/index.js passport sessions
-node src/cli/index.js passport pay 0xRecipient 10 USDC`} />
+        <Code code={`kard passport signup you@email.com
+kard passport verify <8-char-code>
+kard passport address
+kard passport status
+kard passport sessions
+kard passport pay 0xRecipient 10 USDC`} />
         <H3>Local wallet</H3>
-        <Code code={`node src/cli/index.js init
-node src/cli/index.js wallet list
-node src/cli/index.js wallet add
-node src/cli/index.js wallet import
-node src/cli/index.js wallet address`} />
+        <Code code={`kard init
+kard wallet list
+kard wallet add
+kard wallet import
+kard wallet address`} />
         <H3>Payment streams</H3>
-        <Code code={`node src/cli/index.js pay-stream 0xPayee --pct 0.10 --basis revenue --interval 1s --cap-day 1000`} />
+        <Code code={`kard pay-stream 0xPayee --pct 0.10 --basis revenue --interval 1s --cap-day 1000`} />
       </Section>
 
       <Section id="mcp" title="MCP Server">
         <P>Use Kard from Claude Desktop, Cursor, or Claude Code.</P>
         <Code code={`# Start MCP server
-node src/cli/index.js mcp`} />
+kard mcp`} />
         <H3>Claude Desktop config</H3>
         <Code code={`{
   "mcpServers": {
@@ -423,10 +423,10 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now kard
 journalctl -u kard -f`} />
         <H3>Daemon mode</H3>
-        <Code code={`node src/cli/index.js daemon
-node src/cli/index.js daemon --strategy PERPS_TRADER --interval 30s
-node src/cli/index.js daemon --goal "grow 5% this month" --report 5m
-node src/cli/index.js daemon --provider deepseek`} />
+        <Code code={`kard daemon
+kard daemon --strategy PERPS_TRADER --interval 30s
+kard daemon --goal "grow 5% this month" --report 5m
+kard daemon --provider deepseek`} />
         <H3>Cloud platforms</H3>
         <P>Push the included Dockerfile to Render, Railway, Fly.io, or Northflank. Mount a volume at <code>/data</code> so the keystore survives redeploys.</P>
       </Section>
@@ -436,8 +436,8 @@ node src/cli/index.js daemon --provider deepseek`} />
         <Code code={`export KARD_ENV=mainnet
 export HYPERLIQUID_NETWORK=mainnet
 
-node src/cli/index.js run --strict          # refuses to start on ABI mismatch
-node src/cli/index.js verify-lucid USDC     # sanity-checks Lucid controllers`} />
+kard run --strict          # refuses to start on ABI mismatch
+kard verify-lucid USDC     # sanity-checks Lucid controllers`} />
         <P>Mainnet funding:</P>
         <Table headers={['What', 'Chain', 'Amount', 'How']} rows={[
           ['KITE gas', 'Kite AI', '1-5 KITE (~$0.05)', 'Ask Kite Discord'],
