@@ -14,6 +14,20 @@
 
 import 'dotenv/config'
 
+// Load saved config from ~/.kard/env.json (created by kard init)
+import fs from 'node:fs'
+import path from 'node:path'
+import os from 'node:os'
+const _envPath = path.join(os.homedir(), '.kard', 'env.json')
+if (fs.existsSync(_envPath)) {
+  try {
+    const saved = JSON.parse(fs.readFileSync(_envPath, 'utf8'))
+    for (const [k, v] of Object.entries(saved)) {
+      if (!process.env[k]) process.env[k] = v  // env vars take priority over saved config
+    }
+  } catch { /* ignore parse errors */ }
+}
+
 const args = process.argv.slice(2)
 
 function parseFlags (rest) {
@@ -273,12 +287,116 @@ async function cmdSkill (sub, rest, flags) {
 
 async function cmdInit () {
   const { WalletManager } = await import('../wallet/manager.js')
+  const readline = await import('node:readline')
+  const fs = await import('node:fs')
+  const path = await import('node:path')
+  const os = await import('node:os')
+
   const wm = new WalletManager()
   if (wm.exists()) {
     console.error('[kard] wallet keystore already exists. Use `kard wallet list` to view.')
     return
   }
-  await wm.create({ interactive: true })
+
+  // Interactive setup wizard
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+  const ask = (q) => new Promise(resolve => rl.question(q, resolve))
+
+  console.log('')
+  console.log('  ┌─────────────────────────────────────┐')
+  console.log('  │        KARD — First Time Setup       │')
+  console.log('  └─────────────────────────────────────┘')
+  console.log('')
+
+  // 1. Network selection
+  console.log('  Which network do you want to use?')
+  console.log('    1) Testnet (recommended for first time)')
+  console.log('    2) Mainnet (real funds)')
+  console.log('')
+  const netChoice = await ask('  Select [1/2]: ')
+  const isMainnet = netChoice.trim() === '2'
+  process.env.KARD_ENV = isMainnet ? 'mainnet' : 'testnet'
+
+  // Save network preference
+  const kardDir = path.join(os.homedir(), '.kard')
+  if (!fs.existsSync(kardDir)) fs.mkdirSync(kardDir, { recursive: true })
+  const configPath = path.join(kardDir, 'env.json')
+  const envConfig = fs.existsSync(configPath) ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : {}
+  envConfig.KARD_ENV = isMainnet ? 'mainnet' : 'testnet'
+
+  console.log(`\n  ✓ Network: ${isMainnet ? 'Mainnet' : 'Testnet'}`)
+
+  // 2. Password
+  console.log('')
+  console.log('  Set a password to encrypt your wallet.')
+  console.log('  (You will need this every time you start the agent)')
+  console.log('')
+  const password = await ask('  Password: ')
+  if (!password || password.trim().length < 4) {
+    console.error('  ✗ Password must be at least 4 characters.')
+    rl.close()
+    process.exit(1)
+  }
+
+  // 3. LLM provider (optional)
+  console.log('')
+  console.log('  Which AI provider do you want to use?')
+  console.log('    1) Groq (free, fast — recommended)')
+  console.log('    2) Anthropic (Claude)')
+  console.log('    3) DeepSeek (cheap)')
+  console.log('    4) Gemini (Google)')
+  console.log('    5) OpenAI (GPT)')
+  console.log('    6) Ollama (local, free)')
+  console.log('    7) Skip for now')
+  console.log('')
+  const llmChoice = await ask('  Select [1-7]: ')
+  const llmMap = { '1': 'groq', '2': 'anthropic', '3': 'deepseek', '4': 'gemini', '5': 'openai', '6': 'ollama' }
+  const provider = llmMap[llmChoice.trim()]
+
+  if (provider && provider !== 'ollama') {
+    const keyNames = { groq: 'GROQ_API_KEY', anthropic: 'ANTHROPIC_API_KEY', deepseek: 'DEEPSEEK_API_KEY', gemini: 'GEMINI_API_KEY', openai: 'OPENAI_API_KEY' }
+    const keyName = keyNames[provider]
+    console.log(`\n  Enter your ${keyName}:`)
+    const apiKey = await ask('  API Key: ')
+    if (apiKey.trim()) {
+      envConfig.LLM_PROVIDER = provider
+      envConfig[keyName] = apiKey.trim()
+      console.log(`  ✓ ${provider} configured`)
+    }
+  } else if (provider === 'ollama') {
+    envConfig.LLM_PROVIDER = 'ollama'
+    console.log('  ✓ Ollama configured (make sure it is running locally)')
+  }
+
+  // Save env config
+  fs.writeFileSync(configPath, JSON.stringify(envConfig, null, 2))
+  console.log(`\n  ✓ Config saved to ~/.kard/env.json`)
+
+  // 4. Create wallet
+  rl.close()
+  console.log('\n  Creating wallet...')
+  wm.password = password.trim()
+  await wm.create({ interactive: false, password: password.trim() })
+
+  // Summary
+  console.log('')
+  console.log('  ┌─────────────────────────────────────┐')
+  console.log('  │          Setup Complete              │')
+  console.log('  └─────────────────────────────────────┘')
+  console.log('')
+  console.log(`  Network:  ${isMainnet ? 'Mainnet' : 'Testnet'}`)
+  console.log(`  Provider: ${provider || 'not set'}`)
+  console.log(`  Config:   ~/.kard/env.json`)
+  console.log(`  Wallet:   ~/.kard/wallet.json`)
+  console.log('')
+  if (!isMainnet) {
+    console.log('  Next steps:')
+    console.log('    1. Get KITE gas: faucet.gokite.ai')
+    console.log('    2. Get ETH: faucet.quicknode.com/arbitrum/sepolia')
+    console.log('    3. Run: kard gas (to verify)')
+    console.log('    4. Run: kard groq "park USDC at highest yield"')
+  }
+  console.log('')
 }
 
 async function cmdWallet (sub, rest, flags) {
