@@ -273,31 +273,41 @@ function ollamaProvider (opts = {}) {
 function geminiProvider (opts = {}) {
   const apiKey = opts.apiKey || process.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('gemini: GEMINI_API_KEY required')
-  const model = opts.model || process.env.GEMINI_MODEL || 'gemini-1.5-flash'
-  const base = 'https://generativelanguage.googleapis.com/v1beta/openai'
+  const model = opts.model || process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+  const base = `https://generativelanguage.googleapis.com/v1beta/models/${model}`
   return {
     name: 'gemini',
     model,
     async chat ({ system, messages, maxTokens = 1024 }) {
-      const all = system ? [{ role: 'system', content: system }, ...messages] : messages
-      const r = await fetch(`${base}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model,
-          messages: all,
-          max_tokens: maxTokens,
-          response_format: { type: 'json_object' }
+      // Convert OpenAI-style messages to Gemini format
+      const contents = []
+      for (const m of messages) {
+        contents.push({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
         })
+      }
+      const body = {
+        contents,
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          responseMimeType: 'application/json'
+        }
+      }
+      if (system) {
+        body.systemInstruction = { parts: [{ text: system }] }
+      }
+      const r = await fetch(`${base}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
       })
       if (!r.ok) throw new Error(`gemini ${r.status}: ${await r.text()}`)
       const data = await r.json()
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
       return {
-        text: data.choices?.[0]?.message?.content || '',
-        usage: { input: data.usage?.prompt_tokens, output: data.usage?.completion_tokens }
+        text,
+        usage: { input: data.usageMetadata?.promptTokenCount, output: data.usageMetadata?.candidatesTokenCount }
       }
     }
   }

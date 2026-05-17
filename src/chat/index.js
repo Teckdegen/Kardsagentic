@@ -114,35 +114,41 @@ async function handle (intent, { agent, llm, goals, skills, allowExecute, from }
     }
 
     case 'skill': {
-      if (!skills) return '⚠ skills not enabled'
+      if (!skills) return 'skills not enabled'
       const [sub, ...rest] = intent.args
       if (sub === 'list' || !sub) {
-        return '*Skills:*\n' + skills.list().map(s => `• ${s.name} — ${s.description}`).join('\n')
+        const list = skills.list()
+        if (!list.length) return '(no skills installed)'
+        return 'Skills:\n' + list.map(s => `- ${s.name}: ${s.description || ''}`).join('\n')
       }
       if (sub === 'run') {
         const [name, tool, ...kvs] = rest
         const params = Object.fromEntries(kvs.map(kv => kv.split('=')))
         const out = await skills.invoke(name, tool, params)
-        return '```\n' + JSON.stringify(out, null, 2).slice(0, 1500) + '\n```'
+        const txt = JSON.stringify(out, null, 2)
+        return txt.length > 1500 ? txt.slice(0, 1500) + '\n...' : txt
       }
-      return 'usage: /skill list  |  /skill run <name> <tool> [k=v…]'
+      return 'usage: /skill list  |  /skill run <name> <tool> [k=v]'
     }
 
     case 'compile': {
       const decision = await llm.reason(agent.getSnapshot(), { userInstruction: intent.text })
-      const acts = (decision.actions || []).map(a => `• ${a.type} ${a.symbol || a.token || ''} ${a.amount || a.size || ''} — ${a.reason}`).join('\n')
-      return `🧠 ${decision.reasoning}\n\n*Proposed:*\n${acts || '(no actions)'}\n\n_Run with /execute to submit._`
+      if (!decision) return '⚠ LLM returned no response. Check your API key and LLM_PROVIDER.'
+      if (decision.answer) return decision.answer
+      const acts = (decision.actions || []).map(a => `• ${a.type} ${a.symbol || a.token || ''} ${a.amount || a.size || ''} — ${a.reason || ''}`).join('\n')
+      return `${decision.reasoning || 'No reasoning'}\n\nProposed:\n${acts || '(no actions)'}\n\nRun with /execute to submit.`
     }
 
     case 'execute': {
-      if (!allowExecute || !from?.isAllowed) return '🔒 execute disabled (allow-list or --allow-execute)'
+      if (!allowExecute || !from?.isAllowed) return 'execute disabled (allow-list or --allow-execute)'
       const decision = await llm.reason(agent.getSnapshot(), { userInstruction: intent.text })
+      if (!decision) return '⚠ LLM returned no response.'
       const results = []
       for (const action of decision.actions || []) {
         const r = await agent.execute(action)
         results.push(`${action.type}: ${r.tx || r.error || 'ok'}`)
       }
-      return '✅ Executed:\n' + results.map(r => '• ' + r).join('\n')
+      return 'Executed:\n' + results.map(r => '• ' + r).join('\n')
     }
   }
 }

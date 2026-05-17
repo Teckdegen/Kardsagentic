@@ -37,12 +37,22 @@ export class TelegramAdapter extends ChatAdapter {
   }
 
   async send (chatId, text) {
-    return this._call('sendMessage', {
-      chat_id: chatId,
-      text: text.length > 4000 ? text.slice(0, 4000) + '\n…' : text,
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true
-    })
+    const msg = text.length > 4000 ? text.slice(0, 4000) + '\n…' : text
+    try {
+      return await this._call('sendMessage', {
+        chat_id: chatId,
+        text: msg,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true
+      })
+    } catch (e) {
+      // Fallback to plain text if Markdown parsing fails
+      return await this._call('sendMessage', {
+        chat_id: chatId,
+        text: msg,
+        disable_web_page_preview: true
+      })
+    }
   }
 
   async _loop () {

@@ -1,6 +1,6 @@
 {
   "name": "kard-agent",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "Self-hosted agentic-trading runtime for Kite. SDK + MCP + CLI.",
   "type": "module",
   "engines": {
