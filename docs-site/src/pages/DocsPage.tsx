@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Docs from '../components/Docs'
 
 const NAV = [
@@ -31,18 +31,36 @@ const NAV = [
 
 export default function DocsPage () {
   const [active, setActive] = useState('quickstart')
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActive(entry.target.id)
+          }
+        }
+      },
+      { rootMargin: '-20% 0px -60% 0px' }
+    )
+    for (const item of NAV) {
+      const el = document.getElementById(item.id)
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar — GitBook style */}
-      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-r border-[#1a1a1a] bg-[#0a0a0a] fixed top-0 left-0 h-screen overflow-y-auto">
-        <div className="p-5 border-b border-[#1a1a1a]">
-          <a href="#/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="Kard" className="w-5 h-5 object-contain" />
-            <span className="text-[14px] font-bold text-white">Kard Docs</span>
-          </a>
+    <div className="min-h-screen flex bg-black">
+      {/* Sidebar */}
+      <aside className="hidden lg:flex flex-col w-[240px] shrink-0 fixed top-0 left-0 h-screen border-r border-[#111]">
+        <div className="p-5 flex items-center gap-2.5">
+          <img src="/logo.png" alt="Kard" className="w-5 h-5 object-contain opacity-80" />
+          <span className="text-[13px] font-semibold text-white tracking-[-0.01em]">Kard</span>
+          <span className="text-[11px] text-[#333] font-mono ml-auto">v0.2</span>
         </div>
-        <nav className="p-4 space-y-0.5 flex-1">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4">
           {NAV.map(item => (
             <a
               key={item.id}
@@ -52,45 +70,68 @@ export default function DocsPage () {
                 setActive(item.id)
                 document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
               }}
-              className={`block px-3 py-2 rounded-lg text-[13px] transition-colors ${
+              className={`block px-3 py-1.5 rounded-md text-[12px] transition-all duration-150 ${
                 active === item.id
-                  ? 'bg-white/10 text-white font-medium'
-                  : 'text-[#71717a] hover:text-white hover:bg-white/[0.03]'
+                  ? 'text-white bg-white/[0.06] font-medium'
+                  : 'text-[#555] hover:text-[#999] hover:bg-white/[0.02]'
               }`}
             >
               {item.label}
             </a>
           ))}
         </nav>
-        <div className="p-4 border-t border-[#1a1a1a]">
-          <a
-            href="https://github.com/Teckdegen/Kardsagentic"
-            target="_blank"
-            rel="noreferrer"
-            className="block px-3 py-2 rounded-lg text-[12px] text-[#52525b] hover:text-white transition-colors"
-          >
-            GitHub ↗
+        <div className="p-3 border-t border-[#111] space-y-0.5">
+          <a href="https://github.com/Teckdegen/Kardsagentic" target="_blank" rel="noreferrer"
+            className="block px-3 py-1.5 rounded-md text-[11px] text-[#444] hover:text-white transition-colors">
+            GitHub
           </a>
-          <a
-            href="#/"
-            className="block px-3 py-2 rounded-lg text-[12px] text-[#52525b] hover:text-white transition-colors"
-          >
-            ← Back to home
+          <a href="#/pitch"
+            className="block px-3 py-1.5 rounded-md text-[11px] text-[#444] hover:text-white transition-colors">
+            Pitch Deck
+          </a>
+          <a href="#/"
+            className="block px-3 py-1.5 rounded-md text-[11px] text-[#444] hover:text-white transition-colors">
+            Home
           </a>
         </div>
       </aside>
 
-      {/* Mobile nav */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur border-b border-[#1a1a1a] px-4 py-3 flex items-center justify-between">
-        <a href="#/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Kard" className="w-5 h-5 object-contain" />
-          <span className="text-[13px] font-bold text-white">Kard Docs</span>
-        </a>
-        <a href="#/" className="text-[12px] text-[#71717a]">← Home</a>
+      {/* Mobile header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-[#111] px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="Kard" className="w-4 h-4 object-contain opacity-80" />
+          <span className="text-[12px] font-semibold text-white">Kard Docs</span>
+        </div>
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="text-[11px] text-[#555] hover:text-white transition-colors font-mono">
+          {mobileOpen ? 'CLOSE' : 'MENU'}
+        </button>
       </div>
 
+      {/* Mobile nav dropdown */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed top-[49px] left-0 right-0 bottom-0 z-40 bg-black/98 backdrop-blur overflow-y-auto p-4">
+          {NAV.map(item => (
+            <a
+              key={item.id}
+              href={`#/docs`}
+              onClick={(e) => {
+                e.preventDefault()
+                setActive(item.id)
+                setMobileOpen(false)
+                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className={`block px-3 py-2 rounded-md text-[13px] ${
+                active === item.id ? 'text-white font-medium' : 'text-[#555]'
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
+
       {/* Main content */}
-      <main className="flex-1 lg:ml-[260px] pt-16 lg:pt-0">
+      <main className="flex-1 lg:ml-[240px] pt-14 lg:pt-0">
         <Docs />
       </main>
     </div>

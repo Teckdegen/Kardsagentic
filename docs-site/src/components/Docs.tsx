@@ -3,7 +3,7 @@ import { cn } from '../lib/cn'
 
 export default function Docs () {
   return (
-    <div className="max-w-[760px] mx-auto py-12 px-6 md:px-10">
+    <div className="max-w-[700px] mx-auto py-16 px-6 md:px-10">
 
       <Section id="quickstart" title="Quick Start">
         <P>Get Kard running in under 5 minutes. You need <B>Node.js 22+</B> and one API key (or Ollama for free local models).</P>
@@ -654,19 +654,19 @@ kard verify-lucid USDC            Verify Lucid ABI`} />
 
 function Section ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="scroll-mt-32 mb-16 pb-16 border-b border-[#1a1a1a] last:border-0">
-      <h2 className="text-[24px] font-bold text-white mb-6">{title}</h2>
-      <div className="space-y-4">{children}</div>
+    <section id={id} className="scroll-mt-32 mb-20 pb-20 border-b border-[#111] last:border-0">
+      <h2 className="text-[22px] font-bold text-white mb-8 tracking-[-0.02em]">{title}</h2>
+      <div className="space-y-5">{children}</div>
     </section>
   )
 }
 
 function H3 ({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-[16px] font-semibold text-white mt-6 mb-2">{children}</h3>
+  return <h3 className="text-[14px] font-semibold text-white mt-8 mb-3 tracking-[-0.01em]">{children}</h3>
 }
 
 function P ({ children }: { children: React.ReactNode }) {
-  return <p className="text-[14px] text-[#a1a1aa] leading-relaxed">{children}</p>
+  return <p className="text-[13px] text-[#888] leading-[1.7]">{children}</p>
 }
 
 function B ({ children }: { children: React.ReactNode }) {
@@ -675,32 +675,16 @@ function B ({ children }: { children: React.ReactNode }) {
 
 function Callout ({ type, children }: { type: 'info' | 'warning' | 'tip'; children: React.ReactNode }) {
   const styles = {
-    info: 'border-[#2563eb]/30 bg-[#2563eb]/5 text-[#93c5fd]',
-    warning: 'border-amber-500/30 bg-amber-500/5 text-amber-300',
-    tip: 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300',
+    info: 'border-[#1a2a4a] bg-[#0a1020] text-[#7aa2d4]',
+    warning: 'border-[#3a2a10] bg-[#1a1508] text-[#c4a44a]',
+    tip: 'border-[#1a3a2a] bg-[#081a10] text-[#6ab88a]',
   }
-  const icons = {
-    info: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
+  return (
+    <div className={`flex items-start gap-3 rounded-md border px-4 py-3 text-[12px] leading-[1.6] ${styles[type]}`}>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5 opacity-60">
         <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
         <path d="M8 7v4M8 5h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
-    ),
-    warning: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
-        <path d="M8 1.5L14.5 13H1.5L8 1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M8 6v3M8 11h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-    tip: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
-        <path d="M6 14h4M8 1a5 5 0 0 0-3 9v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V10a5 5 0 0 0-3-9z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  }
-  return (
-    <div className={`flex items-start gap-3 rounded-lg border p-4 text-[13px] leading-relaxed ${styles[type]}`}>
-      {icons[type]}
       <span>{children}</span>
     </div>
   )
@@ -708,17 +692,17 @@ function Callout ({ type, children }: { type: 'info' | 'warning' | 'tip'; childr
 
 function Table ({ headers, rows }: { headers: string[]; rows: string[][] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-[#1a1a1a]">
-      <table className="w-full text-[13px]">
+    <div className="overflow-x-auto rounded-md border border-[#111]">
+      <table className="w-full text-[12px]">
         <thead>
-          <tr className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
-            {headers.map(h => <th key={h} className="text-left px-4 py-3 text-[#71717a] font-medium">{h}</th>)}
+          <tr className="border-b border-[#111]">
+            {headers.map(h => <th key={h} className="text-left px-4 py-2.5 text-[#555] font-medium uppercase tracking-wider text-[11px]">{h}</th>)}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-[#0f0f0f] last:border-0">
-              {row.map((cell, j) => <td key={j} className="px-4 py-2.5 text-[#a1a1aa]">{cell}</td>)}
+            <tr key={i} className="border-b border-[#0a0a0a] last:border-0">
+              {row.map((cell, j) => <td key={j} className="px-4 py-2.5 text-[#888]">{cell}</td>)}
             </tr>
           ))}
         </tbody>
@@ -735,19 +719,19 @@ function Code ({ code }: { code: string }) {
     setTimeout(() => setCopied(false), 1500)
   }
   return (
-    <div className="relative group terminal">
+    <div className="relative group rounded-md border border-[#111] bg-[#060606] overflow-hidden">
       <button
         onClick={copy}
         className={cn(
-          'absolute top-3 right-3 z-10 px-2.5 py-1 rounded text-[11px] font-medium',
-          'bg-white/5 text-[#52525b] hover:text-white hover:bg-white/10 transition-all',
+          'absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded text-[10px] font-mono',
+          'text-[#333] hover:text-white transition-all',
           'opacity-0 group-hover:opacity-100',
-          copied && 'opacity-100 text-emerald-400'
+          copied && 'opacity-100 text-[#6ab88a]'
         )}
       >
-        {copied ? 'Copied' : 'Copy'}
+        {copied ? 'copied' : 'copy'}
       </button>
-      <pre className="p-5 text-[12.5px] leading-[1.7] text-[#a1a1aa] overflow-x-auto font-mono whitespace-pre-wrap">
+      <pre className="p-4 text-[12px] leading-[1.8] text-[#999] overflow-x-auto font-mono whitespace-pre-wrap">
         <code>{code}</code>
       </pre>
     </div>
