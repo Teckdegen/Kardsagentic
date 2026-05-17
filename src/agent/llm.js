@@ -269,6 +269,69 @@ function ollamaProvider (opts = {}) {
   }
 }
 
+/** Google Gemini — via OpenAI-compatible endpoint */
+function geminiProvider (opts = {}) {
+  const apiKey = opts.apiKey || process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('gemini: GEMINI_API_KEY required')
+  const model = opts.model || process.env.GEMINI_MODEL || 'gemini-1.5-flash'
+  const base = 'https://generativelanguage.googleapis.com/v1beta/openai'
+  return {
+    name: 'gemini',
+    model,
+    async chat ({ system, messages, maxTokens = 1024 }) {
+      const all = system ? [{ role: 'system', content: system }, ...messages] : messages
+      const r = await fetch(`${base}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          messages: all,
+          max_tokens: maxTokens,
+          response_format: { type: 'json_object' }
+        })
+      })
+      if (!r.ok) throw new Error(`gemini ${r.status}: ${await r.text()}`)
+      const data = await r.json()
+      return {
+        text: data.choices?.[0]?.message?.content || '',
+        usage: { input: data.usage?.prompt_tokens, output: data.usage?.completion_tokens }
+      }
+    }
+  }
+}
+
+/** xAI Grok — OpenAI-compatible API */
+function grokProvider (opts = {}) {
+  const apiKey = opts.apiKey || process.env.GROK_API_KEY
+  if (!apiKey) throw new Error('grok: GROK_API_KEY required')
+  const model = opts.model || process.env.GROK_MODEL || 'grok-beta'
+  const base = 'https://api.x.ai/v1'
+  return {
+    name: 'grok',
+    model,
+    async chat ({ system, messages, maxTokens = 1024 }) {
+      const all = system ? [{ role: 'system', content: system }, ...messages] : messages
+      const r = await fetch(`${base}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({ model, messages: all, max_tokens: maxTokens })
+      })
+      if (!r.ok) throw new Error(`grok ${r.status}: ${await r.text()}`)
+      const data = await r.json()
+      return {
+        text: data.choices?.[0]?.message?.content || '',
+        usage: { input: data.usage?.prompt_tokens, output: data.usage?.completion_tokens }
+      }
+    }
+  }
+}
+
 const PROVIDERS = {
   anthropic: anthropicProvider,
   claude: anthropicProvider,
@@ -276,6 +339,10 @@ const PROVIDERS = {
   gpt: openaiProvider,
   openrouter: openrouterProvider,
   deepseek: deepseekProvider,
+  gemini: geminiProvider,
+  google: geminiProvider,
+  grok: grokProvider,
+  xai: grokProvider,
   ollama: ollamaProvider,
   local: ollamaProvider
 }

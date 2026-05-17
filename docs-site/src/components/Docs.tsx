@@ -71,10 +71,17 @@ agent.start(60_000) // check every 60s`} />
 
       <Section id="wallet" title="Wallet Setup">
         <P>Kard creates an encrypted keystore at <code>~/.kard/wallet.json</code>. Your private key never leaves your machine.</P>
-        <Code code={`# Create a new wallet
-kard init
+        <H3>Set your wallet password</H3>
+        <Code code={`# Set password before creating wallet (required)
+export KARD_PASSWORD=your-secure-password
 
-# View your address (send funds here)
+# On Windows PowerShell:
+# $env:KARD_PASSWORD="your-secure-password"`} />
+        <H3>Create wallet</H3>
+        <Code code={`kard init`} />
+        <Callout type="warning">Write down your seed phrase when it appears. It's shown ONCE and cannot be recovered.</Callout>
+        <H3>Manage wallets</H3>
+        <Code code={`# View your address (send funds here)
 kard wallet address
 
 # List all wallets
@@ -82,10 +89,17 @@ kard wallet list
 
 # Import an existing private key
 kard wallet import`} />
-        <Callout type="warning">Write down your seed phrase when it appears. It's shown ONCE and cannot be recovered.</Callout>
         <P>Alternatively, use an existing key via environment variable:</P>
         <Code code={`export PRIVATE_KEY=0xYourPrivateKeyHere
 export KARD_PASSWORD=your-encryption-password`} />
+        <H3>Reset everything</H3>
+        <P>To delete all Kard data (wallet, config, strategies, risk limits) and start fresh:</P>
+        <Code code={`# Linux/Mac
+rm -rf ~/.kard
+
+# Windows PowerShell
+Remove-Item -Recurse -Force ~/.kard`} />
+        <Callout type="warning">This permanently deletes your wallet. Withdraw all funds first. Without the seed phrase, funds are unrecoverable.</Callout>
       </Section>
 
       <Section id="llm" title="LLM Configuration">
@@ -387,6 +401,12 @@ export TELEGRAM_BOT_TOKEN=<token>
 export TELEGRAM_ALLOW_USERS=<your-user-id>
 export KARD_ALLOW_EXECUTE=1
 kard chat telegram
+
+# Windows PowerShell:
+# $env:TELEGRAM_BOT_TOKEN="your-bot-token"
+# $env:TELEGRAM_ALLOW_USERS="your-telegram-user-id"
+# $env:KARD_ALLOW_EXECUTE="1"
+# kard chat telegram
 
 # Discord
 export DISCORD_BOT_TOKEN=<token>
