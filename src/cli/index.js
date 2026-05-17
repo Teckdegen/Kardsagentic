@@ -234,16 +234,30 @@ async function cmdGoal (text, flags) {
 
 async function cmdChat (platform, flags) {
   if (!platform) { console.error('Missing platform: telegram|discord|slack'); process.exit(2) }
+  
+  // Check required tokens
+  const tokenEnvs = { telegram: 'TELEGRAM_BOT_TOKEN', discord: 'DISCORD_BOT_TOKEN', slack: 'SLACK_BOT_TOKEN' }
+  const tokenEnv = tokenEnvs[platform]
+  if (tokenEnv && !process.env[tokenEnv]) {
+    console.error(`[kard] ${tokenEnv} not set.`)
+    console.error(`  Set it in your environment or add it to ~/.kard/env.json:`)
+    console.error(`  PowerShell: $env:${tokenEnv}="your-token"`)
+    console.error(`  Or add "${tokenEnv}": "your-token" to ~/.kard/env.json`)
+    process.exit(2)
+  }
+
+  console.error(`[kard] starting ${platform} bot...`)
   const { createAgent } = await import('../index.js')
   const { createAdapter, bridge } = await import('../chat/index.js')
   const { GoalEngine } = await import('../goals/engine.js')
   const provider = flags.provider || process.env.LLM_PROVIDER || 'anthropic'
+  console.error(`[kard] creating agent (provider: ${provider})...`)
   const agent = await createAgent({ provider, strategy: flags.strategy || 'KITE_YIELD' })
   const goals = new GoalEngine({ agent, llm: agent.llm, skills: agent.skills })
   goals.start()
   const adapter = createAdapter(platform)
-  bridge({ adapter, agent, llm: agent.llm, goals, skills: agent.skills, allowExecute: !!flags['allow-execute'] })
-  console.error(`[kard] chat:${platform} bridged to agent. /help in your channel.`)
+  bridge({ adapter, agent, llm: agent.llm, goals, skills: agent.skills, allowExecute: process.env.KARD_ALLOW_EXECUTE === '1' || !!flags['allow-execute'] })
+  console.error(`[kard] chat:${platform} bridged to agent. Send /help in your chat.`)
   process.on('SIGINT', () => { adapter.stop(); agent.stop(); process.exit(0) })
 }
 
@@ -369,6 +383,7 @@ async function cmdInit () {
   }
 
   // Save env config
+  envConfig.KARD_PASSWORD = password.trim()
   fs.writeFileSync(configPath, JSON.stringify(envConfig, null, 2))
   console.log(`\n  ✓ Config saved to ~/.kard/env.json`)
 
