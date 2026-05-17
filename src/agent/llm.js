@@ -342,6 +342,40 @@ function grokProvider (opts = {}) {
   }
 }
 
+/** Groq — fast inference, OpenAI-compatible API */
+function groqProvider (opts = {}) {
+  const apiKey = opts.apiKey || process.env.GROQ_API_KEY
+  if (!apiKey) throw new Error('groq: GROQ_API_KEY required')
+  const model = opts.model || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
+  const base = 'https://api.groq.com/openai/v1'
+  return {
+    name: 'groq',
+    model,
+    async chat ({ system, messages, maxTokens = 1024 }) {
+      const all = system ? [{ role: 'system', content: system }, ...messages] : messages
+      const r = await fetch(`${base}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          messages: all,
+          max_tokens: maxTokens,
+          response_format: { type: 'json_object' }
+        })
+      })
+      if (!r.ok) throw new Error(`groq ${r.status}: ${await r.text()}`)
+      const data = await r.json()
+      return {
+        text: data.choices?.[0]?.message?.content || '',
+        usage: { input: data.usage?.prompt_tokens, output: data.usage?.completion_tokens }
+      }
+    }
+  }
+}
+
 const PROVIDERS = {
   anthropic: anthropicProvider,
   claude: anthropicProvider,
@@ -353,6 +387,7 @@ const PROVIDERS = {
   google: geminiProvider,
   grok: grokProvider,
   xai: grokProvider,
+  groq: groqProvider,
   ollama: ollamaProvider,
   local: ollamaProvider
 }

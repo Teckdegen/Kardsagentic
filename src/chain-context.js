@@ -33,8 +33,21 @@ export class ChainContext {
   /** Resolve effective RPC URL for a chain, honoring overrides + env vars */
   rpcFor (chainKey) {
     if (this.rpcOverrides[chainKey]) return this.rpcOverrides[chainKey]
+    // Check multiple env var patterns
     const envKey = `RPC_${chainKey.toUpperCase()}`
     if (process.env[envKey]) return process.env[envKey]
+    // Also check common naming patterns (KITE_RPC_URL, ARB_RPC_URL, etc.)
+    const altKeys = {
+      kiteai: 'KITE_RPC_URL',
+      arbitrum: 'ARB_RPC_URL',
+      arbitrumSepolia: 'ARB_SEPOLIA_RPC_URL',
+      base: 'BASE_RPC_URL',
+      baseSepolia: 'BASE_SEPOLIA_RPC_URL',
+      ethereum: 'ETH_RPC_URL',
+      avalanche: 'AVAX_RPC_URL',
+      celo: 'CELO_RPC_URL'
+    }
+    if (altKeys[chainKey] && process.env[altKeys[chainKey]]) return process.env[altKeys[chainKey]]
     const cfg = CHAINS[chainKey]
     if (!cfg) throw new Error(`ChainContext: unknown chain ${chainKey}`)
     return cfg.rpcUrl

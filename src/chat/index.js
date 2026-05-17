@@ -57,15 +57,26 @@ async function handle (intent, { agent, llm, goals, skills, allowExecute, from }
   switch (intent.kind) {
     case 'help':
       return [
-        '*Kard chat commands*',
-        '`/status` — current portfolio + active strategy',
-        '`/goal <text>` — add an autonomous goal',
-        '`/compile <text>` — preview a strategy (no execution)',
-        '`/execute <text>` — run a strategy (gated)',
-        '`/skill list` — list installed skills',
-        '`/start` — begin autonomous loop',
-        '`/stop` — pause the agent',
-        '_Just type a strategy without a slash to compile it._'
+        'Kard commands:',
+        '/status — portfolio + strategy',
+        '/start — begin autonomous loop',
+        '/stop — pause the agent',
+        '/goal <text> — set an autonomous goal',
+        '/compile <text> — preview a strategy',
+        '/execute <text> — run a strategy (gated)',
+        '/skill list — list installed skills',
+        '/earnings — PnL summary',
+        '/gas — check balances on all chains',
+        '/opportunities — live yield scan',
+        '/reputation — on-chain reputation score',
+        '/risk — show risk limits',
+        '/config — show current policy',
+        '/kill — emergency stop all agents',
+        '/resume — resume after kill',
+        '/address — show wallet address',
+        '/attest — list recent attestations',
+        '',
+        'Or just type anything to chat with the AI agent.'
       ].join('\n')
 
     case 'status': {
@@ -86,6 +97,91 @@ async function handle (intent, { agent, llm, goals, skills, allowExecute, from }
 
     case 'start': agent.start(); return '▶ agent loop started'
     case 'stop':  agent.stop();  return '⏹ agent stopped'
+
+    case 'kill': {
+      const { pullKillSwitch } = await import('../risk/engine.js')
+      pullKillSwitch()
+      agent.stop()
+      return 'KILL switch ON. All agents halted.'
+    }
+
+    case 'resume': {
+      const { releaseKillSwitch } = await import('../risk/engine.js')
+      releaseKillSwitch()
+      return 'KILL switch OFF. You can /start again.'
+    }
+
+    case 'address': {
+      const addr = agent.wallet?.address || 'unknown'
+      return `Agent wallet: ${addr}`
+    }
+
+    case 'gas': {
+      const { GasManager } = await import('../gas-manager.js')
+      const gas = new GasManager(agent.chainContext || agent._chainContext)
+      if (!gas.ctx) return 'Chain context not available'
+      const snap = await gas.snapshotAll()
+      const lines = ['Gas balances:']
+      for (const [key, info] of Object.entries(snap)) {
+        if (info.error) lines.push(`  ${key}: ERROR`)
+        else lines.push(`  ${info.ok ? '✓' : '✗'} ${key}: ${info.balance.toFixed(6)} ${info.symbol}`)
+      }
+      return lines.join('\n')
+    }
+
+    case 'opportunities': {
+      await agent.refresh()
+      const ops = agent.lastOpportunities
+      if (!ops || !ops.opportunities?.length) return 'No opportunities found'
+      const lines = ['Live opportunities:']
+      for (const o of ops.opportunities.slice(0, 8)) {
+        const apy = o.apy ? `${(o.apy * 100).toFixed(1)}%` : '?'
+        lines.push(`  ${apy} ${o.source || o.protocol || ''} ${o.asset || ''} ${o.chain || ''}`)
+      }
+      return lines.join('\n')
+    }
+
+    case 'reputation': {
+      try {
+        const { KiteReputation } = await import('../kite/reputation.js')
+        const rep = new KiteReputation({ chainContext: agent.chainContext || agent._chainContext })
+        const addr = agent.wallet?.address
+        const score = await rep.getScore(addr)
+        return `Reputation: ${score.score} (${score.tier})\nAttestations: ${score.stats.totalAttestations}\nSuccess rate: ${score.stats.successRate}`
+      } catch (e) {
+        return `Reputation: score 0 (newcomer) — ${e.message}`
+      }
+    }
+
+    case 'risk': {
+      const { getEffectiveLimits } = await import('../risk/engine.js')
+      const limits = getEffectiveLimits()
+      return [
+        'Risk limits:',
+        `  Max drawdown: ${(limits.max_daily_drawdown_pct * 100).toFixed(1)}%`,
+        `  Max leverage: ${limits.max_total_leverage}x`,
+        `  Hard max leverage: ${limits.hard_max_leverage}x`,
+        `  Max per-market: ${(limits.max_per_market_pct * 100).toFixed(1)}%`,
+        `  Max position: $${limits.hard_max_position_usd.toLocaleString()}`,
+        `  Min trade: $${limits.min_trade_usd}`
+      ].join('\n')
+    }
+
+    case 'config': {
+      const { defaultConfig } = await import('../config.js')
+      const cfg = defaultConfig()
+      return cfg.describe()
+    }
+
+    case 'attest': {
+      const list = agent.attestor?.list({ limit: 5 }) || []
+      if (!list.length) return 'No attestations yet. Run the agent to generate them.'
+      const lines = ['Recent attestations:']
+      for (const a of list) {
+        lines.push(`  ${a.ts?.slice(0, 16) || '?'} ${a.txHash?.slice(0, 14) || a.error || '?'}...`)
+      }
+      return lines.join('\n')
+    }
 
     case 'earnings': {
       const e = agent.bookkeeper?.earnings(agent.portfolio?.totalUSD)
@@ -132,23 +228,31 @@ async function handle (intent, { agent, llm, goals, skills, allowExecute, from }
     }
 
     case 'compile': {
-      const decision = await llm.reason(agent.getSnapshot(), { userInstruction: intent.text })
-      if (!decision) return '⚠ LLM returned no response. Check your API key and LLM_PROVIDER.'
-      if (decision.answer) return decision.answer
-      const acts = (decision.actions || []).map(a => `• ${a.type} ${a.symbol || a.token || ''} ${a.amount || a.size || ''} — ${a.reason || ''}`).join('\n')
-      return `${decision.reasoning || 'No reasoning'}\n\nProposed:\n${acts || '(no actions)'}\n\nRun with /execute to submit.`
+      try {
+        const decision = await llm.reason(agent.getSnapshot(), { userInstruction: intent.text })
+        if (!decision) return 'I could not process that. Check your API key and LLM_PROVIDER are set.'
+        if (decision.answer) return decision.answer
+        const acts = (decision.actions || []).map(a => `• ${a.type} ${a.symbol || a.token || ''} ${a.amount || a.size || ''} — ${a.reason || ''}`).join('\n')
+        return `${decision.reasoning || 'No reasoning'}\n\nProposed:\n${acts || '(no actions)'}\n\nRun with /execute to submit.`
+      } catch (e) {
+        return `Could not get AI response: ${e.message?.slice(0, 200) || 'unknown error'}`
+      }
     }
 
     case 'execute': {
       if (!allowExecute || !from?.isAllowed) return 'execute disabled (allow-list or --allow-execute)'
-      const decision = await llm.reason(agent.getSnapshot(), { userInstruction: intent.text })
-      if (!decision) return '⚠ LLM returned no response.'
-      const results = []
-      for (const action of decision.actions || []) {
-        const r = await agent.execute(action)
-        results.push(`${action.type}: ${r.tx || r.error || 'ok'}`)
+      try {
+        const decision = await llm.reason(agent.getSnapshot(), { userInstruction: intent.text })
+        if (!decision) return 'LLM returned no response.'
+        const results = []
+        for (const action of decision.actions || []) {
+          const r = await agent.execute(action)
+          results.push(`${action.type}: ${r.tx || r.error || 'ok'}`)
+        }
+        return 'Executed:\n' + results.map(r => '• ' + r).join('\n')
+      } catch (e) {
+        return `Execution failed: ${e.message?.slice(0, 200) || 'unknown error'}`
       }
-      return 'Executed:\n' + results.map(r => '• ' + r).join('\n')
     }
   }
 }

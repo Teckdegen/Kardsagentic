@@ -29,15 +29,24 @@ export class ChatAdapter extends EventEmitter {
     const t = text.trim()
     if (/^\/(help|h)\b/i.test(t))   return { kind: 'help' }
     if (/^\/(status|s)\b/i.test(t)) return { kind: 'status' }
-    if (/^\/(stop|halt|kill)\b/i.test(t)) return { kind: 'stop' }
+    if (/^\/(stop|halt)\b/i.test(t)) return { kind: 'stop' }
     if (/^\/(start|run|go)\b/i.test(t))    return { kind: 'start' }
+    if (/^\/(kill)\b/i.test(t))            return { kind: 'kill' }
+    if (/^\/(resume)\b/i.test(t))          return { kind: 'resume' }
+    if (/^\/(address|wallet)\b/i.test(t))  return { kind: 'address' }
+    if (/^\/(gas|balance|balances)\b/i.test(t)) return { kind: 'gas' }
+    if (/^\/(opportunities|opp|yields)\b/i.test(t)) return { kind: 'opportunities' }
+    if (/^\/(reputation|rep|score)\b/i.test(t)) return { kind: 'reputation' }
+    if (/^\/(risk)\b/i.test(t))            return { kind: 'risk' }
+    if (/^\/(config|policy)\b/i.test(t))   return { kind: 'config' }
+    if (/^\/(attest|attestations)\b/i.test(t)) return { kind: 'attest' }
     if (/^\/(earnings|pnl)\b/i.test(t))    return { kind: 'earnings' }
     if (/^\/(report)\b/i.test(t))          return { kind: 'report', mode: t.includes('full') ? 'full' : 'normal' }
     if (/^\/(goal)\b/i.test(t))    return { kind: 'goal', text: t.replace(/^\/goal\s*/i, '') }
     if (/^\/(skill)\b/i.test(t))   return { kind: 'skill', args: t.replace(/^\/skill\s*/i, '').split(/\s+/) }
     if (/^\/(compile|ask)\b/i.test(t)) return { kind: 'compile', text: t.replace(/^\/(compile|ask)\s*/i, '') }
     if (/^\/(execute|exec|do)\b/i.test(t)) return { kind: 'execute', text: t.replace(/^\/(execute|exec|do)\s*/i, '') }
-    // No prefix → treat as natural-language strategy compile
+    // No prefix → treat as natural-language chat (compile)
     return { kind: 'compile', text: t }
   }
 }
