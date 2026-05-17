@@ -188,40 +188,38 @@ const SLIDES = [
     content: (
       <div className="h-screen w-full flex flex-col items-center justify-center px-8">
         <p className="text-[12px] uppercase tracking-[0.2em] text-[#444] mb-4 font-medium">Live and Shipping</p>
-        <h2 className="text-[32px] md:text-[44px] font-bold text-white leading-[1.15] mb-8 tracking-[-0.02em] text-center">
+        <h2 className="text-[32px] md:text-[44px] font-bold text-white leading-[1.15] mb-6 tracking-[-0.02em] text-center">
           Try it in 30 seconds.
         </h2>
-        <div className="px-8 py-5 rounded-lg bg-[#0a0a0a] border border-[#1a1a1a] mb-10">
-          <p className="text-[14px] font-mono text-[#666] leading-[2.2]">
-            <span className="text-[#333] select-none">$ </span><span className="text-[#ccc]">npm install -g kard-agent</span>
-          </p>
-          <p className="text-[14px] font-mono text-[#666] leading-[2.2]">
-            <span className="text-[#333] select-none">$ </span><span className="text-[#ccc]">kard demo</span>
-          </p>
+        <div className="px-6 py-4 rounded-lg bg-[#0a0a0a] border border-[#1a1a1a] mb-10">
+          <code className="text-[13px] text-[#a1a1aa] font-mono leading-[2]">
+            <span className="text-[#444]">$</span> npm install -g kard-agent<br/>
+            <span className="text-[#444]">$</span> kard demo
+          </code>
         </div>
-        <div className="flex gap-10 mb-12">
+        <div className="flex gap-8 mb-12">
           {[
-            ['v0.2', 'NPM'],
-            ['92', 'FILES'],
-            ['CLI + SDK + MCP', 'INTERFACES'],
+            ['v0.2', 'npm'],
+            ['92', 'Files'],
+            ['CLI + SDK + MCP', 'Interfaces'],
           ].map(([val, label]) => (
             <div key={label} className="text-center">
-              <p className="text-[20px] font-bold text-white">{val}</p>
-              <p className="text-[10px] text-[#444] uppercase tracking-[0.15em] mt-1">{label}</p>
+              <p className="text-[18px] font-bold text-white">{val}</p>
+              <p className="text-[11px] text-[#444] uppercase tracking-wider">{label}</p>
             </div>
           ))}
         </div>
         <div className="flex gap-3">
           <a href="https://github.com/Teckdegen/Kardsagentic" target="_blank" rel="noreferrer"
-            className="px-6 py-2.5 rounded-lg bg-white text-black text-[13px] font-medium hover:bg-white/90 transition-colors">
+            className="px-5 py-2.5 rounded-lg bg-white text-black text-[13px] font-medium hover:bg-white/90 transition-colors">
             GitHub
           </a>
           <a href="#/docs"
-            className="px-6 py-2.5 rounded-lg border border-[#333] text-white text-[13px] font-medium hover:bg-white/5 transition-colors">
+            className="px-5 py-2.5 rounded-lg border border-[#222] text-white text-[13px] font-medium hover:bg-white/5 transition-colors">
             Docs
           </a>
           <a href="https://www.npmjs.com/package/kard-agent" target="_blank" rel="noreferrer"
-            className="px-6 py-2.5 rounded-lg border border-[#333] text-white text-[13px] font-medium hover:bg-white/5 transition-colors">
+            className="px-5 py-2.5 rounded-lg border border-[#222] text-white text-[13px] font-medium hover:bg-white/5 transition-colors">
             npm
           </a>
         </div>
