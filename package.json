@@ -65,5 +65,13 @@
     "ethers": "^6.16.0",
     "yaml": "^2.6.0",
     "zod": "^3.23.8"
+  },
+  "homepage": "https://github.com/Teckdegen/Kardsagentic#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Teckdegen/Kardsagentic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Teckdegen/Kardsagentic/issues"
   }
 }
